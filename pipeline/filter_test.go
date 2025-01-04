@@ -7,6 +7,8 @@ import (
 )
 
 func TestFilter(t *testing.T) {
+	t.Parallel()
+
 	isEven := func(i int) bool { return i%2 == 0 }
 	source := pipeline.FromSlice(1, 2, 3, 4)
 	source = source.Then(pipeline.Filter(isEven))
@@ -18,6 +20,8 @@ func TestFilter(t *testing.T) {
 }
 
 func TestKeepIf(t *testing.T) {
+	t.Parallel()
+
 	isEven := func(i int) bool { return i%2 == 0 }
 	source := pipeline.FromSlice(1, 2, 3, 4)
 	source = source.Then(pipeline.KeepIf(isEven))
@@ -29,6 +33,8 @@ func TestKeepIf(t *testing.T) {
 }
 
 func TestDropIf(t *testing.T) {
+	t.Parallel()
+
 	isEven := func(i int) bool { return i%2 == 0 }
 	source := pipeline.FromSlice(1, 2, 3, 4)
 	source = source.Then(pipeline.DropIf(isEven))

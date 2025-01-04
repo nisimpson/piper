@@ -7,6 +7,8 @@ import (
 )
 
 func TestFromSlice(t *testing.T) {
+	t.Parallel()
+
 	want := []int{1, 2, 3, 4}
 	got := Consume[int](pipeline.FromSlice(want...))
 	if !reflect.DeepEqual(want, got) {
@@ -15,6 +17,8 @@ func TestFromSlice(t *testing.T) {
 }
 
 func TestToSlice(t *testing.T) {
+	t.Parallel()
+
 	want := []int{1, 2, 3, 4}
 	source := pipeline.FromSlice(want...)
 	sink := pipeline.ToSlice[int]()

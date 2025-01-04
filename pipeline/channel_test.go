@@ -7,6 +7,8 @@ import (
 )
 
 func TestFromChannel(t *testing.T) {
+	t.Parallel()
+
 	ch := make(chan int, 4)
 	ch <- 1
 	ch <- 2
@@ -24,6 +26,8 @@ func TestFromChannel(t *testing.T) {
 }
 
 func TestToChannel(t *testing.T) {
+	t.Parallel()
+
 	var (
 		ch     = make(chan int)
 		source = pipeline.FromSlice(1, 2, 3, 4)

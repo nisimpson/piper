@@ -8,6 +8,8 @@ import (
 )
 
 func TestBatchN(t *testing.T) {
+	t.Parallel()
+
 	source := pipeline.
 		FromSlice(1, 2, 3, 4).
 		Then(pipeline.BatchN[int](2))
@@ -23,6 +25,8 @@ func TestBatchN(t *testing.T) {
 }
 
 func TestBatchEvery(t *testing.T) {
+	t.Parallel()
+
 	t.Run("flushes during each duration", func(t *testing.T) {
 		var (
 			in     = make(chan int)
@@ -68,6 +72,8 @@ func TestBatchEvery(t *testing.T) {
 }
 
 func TestBatch(t *testing.T) {
+	t.Parallel()
+
 	t.Run("flushes if maximum size is reached", func(t *testing.T) {
 		var (
 			in     = make(chan int)

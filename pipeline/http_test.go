@@ -15,6 +15,8 @@ import (
 )
 
 func TestFromHTTP(t *testing.T) {
+	t.Parallel()
+
 	var (
 		handlers = map[string]http.Handler{
 			"ok": http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

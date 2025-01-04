@@ -20,6 +20,8 @@ func (e EchoCommand) Execute(input string) (out string, exitcode int, err error)
 }
 
 func TestFromCmd(t *testing.T) {
+	t.Parallel()
+
 	var (
 		source = pipeline.FromCmd(EchoCommand{input: "hello"})
 		want   = []string{"hello"}
@@ -33,6 +35,8 @@ func TestFromCmd(t *testing.T) {
 }
 
 func TestExecCmd(t *testing.T) {
+	t.Parallel()
+
 	var (
 		source = pipeline.FromSlice("hello")
 		action = pipeline.ExecCmd(EchoCommand{})

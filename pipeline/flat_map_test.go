@@ -7,6 +7,8 @@ import (
 )
 
 func TestFlatMap(t *testing.T) {
+	t.Parallel()
+
 	type node struct {
 		children []node
 	}

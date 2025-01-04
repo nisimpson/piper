@@ -9,6 +9,8 @@ import (
 )
 
 func TestFanOut(t *testing.T) {
+	t.Parallel()
+
 	var (
 		source = pipeline.FromSlice(0, 1, 2, 3, 4)
 		double = func(in int) int { return in * 2 }

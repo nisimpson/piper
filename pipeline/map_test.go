@@ -8,6 +8,8 @@ import (
 )
 
 func TestMap(t *testing.T) {
+	t.Parallel()
+
 	source := pipeline.FromSlice(1, 2, 3, 4)
 	double := func(in int) string { return fmt.Sprintf("%d", in*2) }
 	source = source.Then(pipeline.Map(double))

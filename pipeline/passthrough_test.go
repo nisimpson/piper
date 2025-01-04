@@ -6,23 +6,22 @@ import (
 	"testing"
 )
 
-func TestReduce(t *testing.T) {
+func TestPassthrough(t *testing.T) {
 	t.Parallel()
 
 	var (
-		adder  = func(acc, cur int) int { return acc + cur }
 		source = pipeline.FromSlice(1, 2, 3, 4)
-		action = pipeline.Reduce(adder)
+		action = pipeline.Passthrough()
 	)
 
 	source = source.Then(action)
 
 	var (
-		want = []int{1, 3, 6, 10} // [(1), (1 + 2), (3 + 3), (6 + 4)]
+		want = []int{1, 2, 3, 4}
 		got  = Consume[int](source)
 	)
 
 	if !reflect.DeepEqual(want, got) {
-		t.Errorf("wanted %#v, got %#v", want, got)
+		t.Errorf("want %v, got %v", want, got)
 	}
 }

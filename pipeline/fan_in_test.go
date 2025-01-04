@@ -8,6 +8,8 @@ import (
 )
 
 func TestFanIn(t *testing.T) {
+	t.Parallel()
+
 	var (
 		s1     = pipeline.FromSlice(1, 2, 3, 4)
 		s2     = pipeline.FromSlice(5, 6, 7, 8)
