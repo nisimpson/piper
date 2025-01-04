@@ -1,0 +1,19 @@
+package pipeline_test
+
+import (
+	"fmt"
+	"piper/pipeline"
+	"reflect"
+	"testing"
+)
+
+func TestMap(t *testing.T) {
+	source := pipeline.FromSlice(1, 2, 3, 4)
+	double := func(in int) string { return fmt.Sprintf("%d", in*2) }
+	source = source.Then(pipeline.Map(double))
+	want := []string{"2", "4", "6", "8"}
+	got := Consume[string](source)
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("wanted %#v, got %#v", want, got)
+	}
+}
