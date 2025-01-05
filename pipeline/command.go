@@ -34,9 +34,9 @@ func (f CommandFunction[In, Out]) Execute(input In) (out Out, exitcode int, err 
 	return f(input)
 }
 
-// commandPipe implements a pipeline component that executes commands.
+// executor implements a pipeline component that executes commands.
 // It can be configured to handle errors and process command output in custom ways.
-type commandPipe[In any, Out any] struct {
+type executor[In any, Out any] struct {
 	// cmd is the command to be executed
 	cmd Command[In, Out]
 	// in receives inputs to be passed to the command
@@ -51,7 +51,7 @@ type commandPipe[In any, Out any] struct {
 // The command will be executed once with an empty input, making it suitable for commands
 // that don't require input (like 'ls' or 'date').
 func FromCmd[In any, Out any](cmd Command[In, Out], opts ...func(*CommandPipeOptions[Out])) piper.Pipeline {
-	source := commandPipe[In, Out]{
+	source := executor[In, Out]{
 		cmd:     cmd,
 		in:      make(chan any, 1),
 		out:     make(chan any),
@@ -68,7 +68,7 @@ func FromCmd[In any, Out any](cmd Command[In, Out], opts ...func(*CommandPipeOpt
 // ExecCmd creates a [piper.Pipe] component that executes a command for each input it receives.
 // This is suitable for commands that process input (like 'grep' or 'sed').
 func ExecCmd[In any, Out any](cmd Command[In, Out], opts ...func(*CommandPipeOptions[Out])) piper.Pipe {
-	source := commandPipe[In, Out]{
+	source := executor[In, Out]{
 		cmd:     cmd,
 		in:      make(chan any),
 		out:     make(chan any),
@@ -79,17 +79,17 @@ func ExecCmd[In any, Out any](cmd Command[In, Out], opts ...func(*CommandPipeOpt
 	return source
 }
 
-func (c commandPipe[In, Out]) In() chan<- any {
+func (c executor[In, Out]) In() chan<- any {
 	return c.in
 }
 
-func (c commandPipe[In, Out]) Out() <-chan any {
+func (c executor[In, Out]) Out() <-chan any {
 	return c.out
 }
 
 // start begins the command execution process.
 // It processes each input by executing the command and handling its output according to the configured options.
-func (c commandPipe[In, Out]) start() {
+func (c executor[In, Out]) start() {
 	defer close(c.out)
 
 	opts := CommandPipeOptions[Out]{
@@ -118,6 +118,6 @@ func (c commandPipe[In, Out]) start() {
 
 // passCommandOutput is the default output handler that simply passes through the command's output string.
 // It ignores the exit code and returns the output unchanged.
-func (commandPipe[In, Out]) passCommandOutput(out Out, _ int) Out {
+func (executor[In, Out]) passCommandOutput(out Out, _ int) Out {
 	return out
 }
