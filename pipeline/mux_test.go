@@ -7,13 +7,13 @@ import (
 	"testing"
 )
 
-func TestFromSource(t *testing.T) {
+func TestFromMux(t *testing.T) {
 	t.Parallel()
 
 	var (
 		s1     = pipeline.FromSlice(1, 2, 3, 4)
 		s2     = pipeline.FromSlice(5, 6, 7, 8)
-		source = pipeline.FromMultiSource(s1, s2)
+		source = pipeline.Mux(s1, s2)
 		got    = Consume[int](source)
 	)
 

@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestToFork(t *testing.T) {
+func TestDemux(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -17,7 +17,7 @@ func TestToFork(t *testing.T) {
 		triple = func(in int) int { return in * 3 }
 	)
 
-	generators := map[string]pipeline.ForkPipelineFunction{
+	generators := map[string]pipeline.DemuxPipelineFunction{
 		"evens": func(s piper.Source) piper.Pipeline {
 			return piper.PipelineFrom(s).Then(pipeline.Map(double))
 		},
@@ -40,7 +40,7 @@ func TestToFork(t *testing.T) {
 		}
 	}
 
-	sink := pipeline.ToFork(keyFn, generators)
+	sink := pipeline.Demux(keyFn, generators)
 	source.To(sink)
 
 	sources := sink.Sources()

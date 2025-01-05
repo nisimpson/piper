@@ -82,11 +82,11 @@ generators := map[string]pipeline.FanOutPipelineFunction{
     },
 }
 
-fanout := pipeline.ToMultiSource(keyFn, generators)
+fanout := pipeline.Demux(keyFn, generators)
 source.To(fanout)
 
 // return sources for further processing, such as fan-in
-source = pipeline.FromMultiSource(fanout.Sources()...)
+source = pipeline.Mux(fanout.Sources()...)
 ```
 
 ### Fan-In Example
@@ -96,7 +96,7 @@ source1 := pipeline.FromSlice(1, 2, 3)
 source2 := pipeline.FromSlice(4, 5, 6)
 
 // Combine the sources into a single pipeline
-combined := pipeline.FromMultiSource(source1, source2)
+combined := pipeline.Mux(source1, source2)
 ```
 
 ### Reduce Example

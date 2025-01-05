@@ -2,34 +2,34 @@ package pipeline
 
 import "piper"
 
-// ForkKeyFunction is a function that determines the destination branch for each item upstream.
+// DemuxKeyFunction is a function that determines the destination branch for each item upstream.
 // It takes an item of type T and returns a string key identifying the target branch.
-type ForkKeyFunction[T any] func(T) string
+type DemuxKeyFunction[T any] func(T) string
 
-// ForkPipelineFunction represents a function that constructs a pipeline segment for a fork branch.
+// DemuxPipelineFunction represents a function that constructs a pipeline segment for a fork branch.
 // It takes a [piper.Source] and returns a [piper.Pipeline] that will process items sent to that branch.
-type ForkPipelineFunction = func(source piper.Source) piper.Pipeline
+type DemuxPipelineFunction = func(source piper.Source) piper.Pipeline
 
-// forkSink implements a pipeline sink that distributes incoming items to multiple branches
+// demuxer implements a pipeline sink that distributes incoming items to multiple branches
 // based on a key function. Each branch can have its own processing pipeline.
-type forkSink[In any] struct {
+type demuxer[In any] struct {
 	// in receives items to be distributed.
 	in chan any
 	// generators maps branch keys to functions that create the processing pipeline for that branch.
-	generators map[string]ForkPipelineFunction
+	generators map[string]DemuxPipelineFunction
 	// keyFunction determines which branch should receive each item.
-	keyFunction ForkKeyFunction[In]
+	keyFunction DemuxKeyFunction[In]
 	// sources holds the source end of each branch's pipeline.
 	sources []piper.Source
 	// channels maps branch keys to the channels used to send items to each branch.
 	channels map[string]chan In
 }
 
-// ToFork creates a fan-out [piper.Sink] that distributes items to multiple [piper.Pipeline] branches.
-// The [ForkKeyFunction] keyfn determines which branch receives each item, and [ForkPipelineFunction] generators
+// Demux creates a fan-out [piper.Sink] that distributes items to multiple [piper.Pipeline] branches.
+// The [DemuxKeyFunction] keyfn determines which branch receives each item, and [DemuxPipelineFunction] generators
 // provide the processing pipeline for each branch.
-func ToFork[In any](keyfn ForkKeyFunction[In], generators map[string]ForkPipelineFunction) forkSink[In] {
-	sink := forkSink[In]{
+func Demux[In any](keyfn DemuxKeyFunction[In], generators map[string]DemuxPipelineFunction) demuxer[In] {
+	sink := demuxer[In]{
 		in:          make(chan any),
 		keyFunction: keyfn,
 		generators:  generators,
@@ -51,21 +51,21 @@ func ToFork[In any](keyfn ForkKeyFunction[In], generators map[string]ForkPipelin
 }
 
 // Sources returns the source ends of all branch pipelines.
-func (f forkSink[In]) Sources() []piper.Source { return f.sources }
+func (d demuxer[In]) Sources() []piper.Source { return d.sources }
 
 // In returns the channel used to send items into the fan-out sink.
-func (f forkSink[In]) In() chan<- any { return f.in }
+func (d demuxer[In]) In() chan<- any { return d.in }
 
 // start begins distributing incoming items to their appropriate branches based on the key function.
 // It ensures proper cleanup by closing all branch channels when the input is exhausted.
-func (f forkSink[In]) start() {
-	for _, ch := range f.channels {
+func (d demuxer[In]) start() {
+	for _, ch := range d.channels {
 		defer close(ch)
 	}
-	for input := range f.in {
+	for input := range d.in {
 		item := input.(In)
-		key := f.keyFunction(item)
-		channel, ok := f.channels[key]
+		key := d.keyFunction(item)
+		channel, ok := d.channels[key]
 		if !ok {
 			continue
 		}
