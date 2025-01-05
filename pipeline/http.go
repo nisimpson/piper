@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"piper"
-	"piper/internal/must"
+
+	"github.com/nisimpson/piper"
+	"github.com/nisimpson/piper/internal/must"
 )
 
 // HttpBodyMarshalFunction represents a function that can serialize pipeline data into bytes for [http.Request] bodies.

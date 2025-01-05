@@ -1,6 +1,6 @@
 package pipeline
 
-import "piper"
+import "github.com/nisimpson/piper"
 
 // flatmapper implements a pipeline component that transforms each input item into multiple output items.
 // It executes a mapping function that returns a slice, then sends each element of that slice downstream individually.

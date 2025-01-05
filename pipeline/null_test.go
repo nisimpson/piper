@@ -1,8 +1,9 @@
 package pipeline_test
 
 import (
-	"piper/pipeline"
 	"testing"
+
+	"github.com/nisimpson/piper/pipeline"
 )
 
 func TestNull(t *testing.T) {

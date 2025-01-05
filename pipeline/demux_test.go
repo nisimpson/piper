@@ -1,11 +1,12 @@
 package pipeline_test
 
 import (
-	"piper"
-	"piper/pipeline"
 	"reflect"
 	"slices"
 	"testing"
+
+	"github.com/nisimpson/piper"
+	"github.com/nisimpson/piper/pipeline"
 )
 
 func TestDemux(t *testing.T) {

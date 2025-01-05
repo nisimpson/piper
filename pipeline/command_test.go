@@ -2,9 +2,10 @@ package pipeline_test
 
 import (
 	"errors"
-	"piper/pipeline"
 	"reflect"
 	"testing"
+
+	"github.com/nisimpson/piper/pipeline"
 )
 
 func EchoCommand(input string, err error) pipeline.Command[string, string] {

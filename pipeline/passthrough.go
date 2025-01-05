@@ -1,6 +1,6 @@
 package pipeline
 
-import "piper"
+import "github.com/nisimpson/piper"
 
 // passthroughPipe implements a pipeline component that forwards items without modification.
 // It acts as a simple relay between pipeline segments.

@@ -1,10 +1,11 @@
 package pipeline_test
 
 import (
-	"piper/pipeline"
 	"reflect"
 	"slices"
 	"testing"
+
+	"github.com/nisimpson/piper/pipeline"
 )
 
 func TestFromMux(t *testing.T) {

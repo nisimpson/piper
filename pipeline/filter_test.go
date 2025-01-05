@@ -1,9 +1,10 @@
 package pipeline_test
 
 import (
-	"piper/pipeline"
 	"reflect"
 	"testing"
+
+	"github.com/nisimpson/piper/pipeline"
 )
 
 func TestFilter(t *testing.T) {

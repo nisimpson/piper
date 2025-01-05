@@ -1,8 +1,9 @@
 package pipeline
 
 import (
-	"piper"
 	"sync"
+
+	"github.com/nisimpson/piper"
 )
 
 // source represents a pipeline source that sends items from a slice.

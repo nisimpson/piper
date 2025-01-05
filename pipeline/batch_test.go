@@ -1,10 +1,11 @@
 package pipeline_test
 
 import (
-	"piper/pipeline"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/nisimpson/piper/pipeline"
 )
 
 func TestBatchN(t *testing.T) {

@@ -1,6 +1,6 @@
 package pipeline
 
-import "piper"
+import "github.com/nisimpson/piper"
 
 // FilterFunction represents a predicate that determines whether an item should be included in the output.
 // It takes an item of type In and returns true if the item should be kept, false if it should be dropped.

@@ -2,9 +2,10 @@ package pipeline_test
 
 import (
 	"fmt"
-	"piper/pipeline"
 	"reflect"
 	"testing"
+
+	"github.com/nisimpson/piper/pipeline"
 )
 
 func TestMap(t *testing.T) {

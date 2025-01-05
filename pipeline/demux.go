@@ -1,6 +1,6 @@
 package pipeline
 
-import "piper"
+import "github.com/nisimpson/piper"
 
 // DemuxKeyFunction is a function that determines the destination branch for each item upstream.
 // It takes an item of type T and returns a string key identifying the target branch.

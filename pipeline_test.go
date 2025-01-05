@@ -1,10 +1,11 @@
 package piper_test
 
 import (
-	"piper"
-	"piper/pipeline"
 	"reflect"
 	"testing"
+
+	"github.com/nisimpson/piper"
+	"github.com/nisimpson/piper/pipeline"
 )
 
 func TestPipeline(t *testing.T) {

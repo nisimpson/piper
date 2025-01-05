@@ -1,6 +1,6 @@
 package pipeline
 
-import "piper"
+import "github.com/nisimpson/piper"
 
 // channelSource adapts a typed input channel to serve as a pipeline source.
 // It converts the typed channel into the pipeline's generic any-typed channel system.

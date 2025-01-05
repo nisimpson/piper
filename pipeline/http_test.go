@@ -7,11 +7,12 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"piper/internal/must"
-	"piper/pipeline"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/nisimpson/piper/internal/must"
+	"github.com/nisimpson/piper/pipeline"
 )
 
 func TestFromHTTP(t *testing.T) {

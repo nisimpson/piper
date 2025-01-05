@@ -1,7 +1,7 @@
 package pipeline
 
 import (
-	"piper"
+	"github.com/nisimpson/piper"
 )
 
 // MapFunction represents a function that transforms an item from one type to another.

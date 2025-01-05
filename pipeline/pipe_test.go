@@ -1,8 +1,9 @@
 package pipeline_test
 
 import (
-	"piper"
 	"sync"
+
+	"github.com/nisimpson/piper"
 )
 
 type Fixture[In any] struct {

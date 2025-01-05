@@ -1,8 +1,8 @@
 package pipeline
 
 import (
-	"piper"
-	"piper/internal/must"
+	"github.com/nisimpson/piper"
+	"github.com/nisimpson/piper/internal/must"
 )
 
 // CommandPipeOptions configure how command execution errors and output are handled in the pipeline.

@@ -2,8 +2,9 @@ package pipeline
 
 import (
 	"math/rand"
-	"piper"
 	"slices"
+
+	"github.com/nisimpson/piper"
 )
 
 // muxer implements a pipeline source that combines multiple input sources into a single output stream.

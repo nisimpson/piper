@@ -1,6 +1,6 @@
 package pipeline
 
-import "piper"
+import "github.com/nisimpson/piper"
 
 // ReduceFunction represents a function that combines two values of the same type into one.
 // acc is the accumulated result so far, and item is the next item to combine into the result.

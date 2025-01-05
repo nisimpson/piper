@@ -1,8 +1,9 @@
 package pipeline
 
 import (
-	"piper"
 	"time"
+
+	"github.com/nisimpson/piper"
 )
 
 // BatcherOptions configure both how and when items are batched together.
