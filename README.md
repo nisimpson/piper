@@ -1,9 +1,5 @@
 # piper
 
-Create data pipelines with Golang channels.
-
-## Overview
-
 Piper is a Go library that enables the creation of composable data pipelines using Go channels. It provides a set of primitives for building concurrent data processing pipelines with operations like map, filter, reduce, fan-out, and fan-in.
 
 ## Key Features
@@ -21,6 +17,7 @@ Piper is a Go library that enables the creation of composable data pipelines usi
 ## Examples
 
 ### Basic Pipeline with Map Operation
+
 ```go
 // Create a pipeline that doubles numbers
 source := pipeline.FromSlice(1, 2, 3, 4)
@@ -34,6 +31,7 @@ for num := range result.Out() {
 ```
 
 ### Filtering Data
+
 ```go
 // Create a pipeline that keeps only even numbers
 source := pipeline.FromSlice(1, 2, 3, 4, 5, 6)
@@ -45,6 +43,7 @@ result := source.Then(pipeline.KeepIf(isEven))
 ```
 
 ### Complex Pipeline with Multiple Operations
+
 ```go
 source := pipeline.FromSlice(1, 2, 3, 4, 5)
 pipeline := source.
@@ -54,25 +53,32 @@ pipeline := source.
 ```
 
 ### Fan-Out Example
+
 ```go
 source := pipeline.FromSlice(1, 2, 3, 4)
 keyFn := func(n int) string {
-    if n%2 == 0 {
+    if n % 2 == 0 {
         return "even"
     }
     return "odd"
 }
 
 generators := map[string]pipeline.FanOutPipelineFunction{
-    "even": func(s piper.Source) piper.Pipeline { return piper.PipelineFrom(s) },
-    "odd":  func(s piper.Source) piper.Pipeline { return piper.PipelineFrom(s) },
+    "even": func(s piper.Source) piper.Pipeline {
+        // process even numbers separately
+        return piper.PipelineFrom(s)
+    },
+    "odd":  func(s piper.Source) piper.Pipeline {
+        // process odd numbers separately
+        return piper.PipelineFrom(s)
+    },
 }
 
 fanout := pipeline.ToMultiSource(keyFn, generators)
+source.To(fanout)
 
-// Process even and odd numbers separately
-evenPipeline := fanout.Sources()[0]
-oddPipeline := fanout.Sources()[1]
+// return sources for further processing, such as fan-in
+source = pipeline.FromMultiSource(fanout.Sources()...)
 ```
 
 ### Fan-In Example
@@ -98,7 +104,7 @@ result := source.Then(pipeline.Reduce(sum))
 ## Installation
 
 ```bash
-go get github.com/yourusername/piper
+go get github.com/nisimpson/piper
 ```
 
 ## Contributing
