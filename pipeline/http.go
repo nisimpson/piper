@@ -9,24 +9,40 @@ import (
 	"piper/internal/must"
 )
 
+// HttpBodyMarshalFunction represents a function that can serialize pipeline data into bytes for HTTP request bodies.
 type HttpBodyMarshalFunction = func(any) ([]byte, error)
 
+// HttpPipeOptions configures how HTTP requests are made and how their responses are processed.
 type HttpPipeOptions struct {
-	Client         *http.Client
-	Request        *http.Request
-	HandleError    func(error)
+	// Client is the HTTP client used to make requests
+	Client *http.Client
+	// Request is the base request to be sent (headers, etc. can be configured here)
+	Request *http.Request
+	// HandleError is called when an HTTP request fails
+	HandleError func(error)
+	// HandleResponse processes the HTTP response and converts it to a pipeline item
 	HandleResponse func(*http.Response) (any, error)
-	MarshalFunc    HttpBodyMarshalFunction
+	// MarshalFunc converts pipeline items to bytes for the request body
+	MarshalFunc HttpBodyMarshalFunction
 }
 
+// httpPipe implements a pipeline component that makes HTTP requests.
+// It can be used either as a source (FromHTTP) or as a processing step (SendHTTP).
 type httpPipe struct {
-	url     string
-	method  string
+	// url is the target URL for HTTP requests
+	url string
+	// method is the HTTP method to use (GET, POST, etc.)
+	method string
+	// options configure how requests are made and responses are handled
 	options []func(*HttpPipeOptions)
-	in      chan any
-	out     chan any
+	// in receives items to be sent as request bodies
+	in chan any
+	// out sends processed responses
+	out chan any
 }
 
+// FromHTTP creates a new pipeline source that starts by making an HTTP request.
+// The provided body is used for the initial request, and the response becomes the first pipeline item.
 func FromHTTP(method string, url string, body io.Reader, opts ...func(*HttpPipeOptions)) piper.Pipeline {
 	source := httpPipe{
 		url:     url,
@@ -48,6 +64,8 @@ func FromHTTP(method string, url string, body io.Reader, opts ...func(*HttpPipeO
 	return piper.PipelineFrom(source)
 }
 
+// SendHTTP creates a pipeline component that sends each input item as an HTTP request.
+// The responses from these requests become the output items in the pipeline.
 func SendHTTP(method string, url string, opts ...func(*HttpPipeOptions)) piper.Pipe {
 	pipe := httpPipe{
 		url:     url,
@@ -69,12 +87,17 @@ func (h httpPipe) Out() <-chan any {
 	return h.out
 }
 
+// apply configures the HttpPipeOptions by running all the provided option functions.
+// This is an internal helper method used during pipe initialization.
 func (o *HttpPipeOptions) apply(opts ...func(*HttpPipeOptions)) {
 	for _, opt := range opts {
 		opt(o)
 	}
 }
 
+// start begins processing HTTP requests/responses.
+// For source pipes (FromHTTP) it makes a single request; for processing pipes (SendHTTP)
+// it makes a request for each input item.
 func (h httpPipe) start() {
 	opts := HttpPipeOptions{
 		Request:        must.Return(http.NewRequest(h.method, h.url, nil)),

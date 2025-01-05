@@ -6,11 +6,16 @@ import (
 	"slices"
 )
 
+// fanInSource implements a pipeline source that combines multiple input sources into a single output stream.
 type fanInSource struct {
-	out     chan any
+	// out is the channel where combined data from all sources is sent
+	out chan any
+	// sources is the collection of input sources to read from
 	sources []piper.Source
 }
 
+// FromMultiSource creates a new pipeline that reads from multiple sources simultaneously.
+// Data from all sources is interleaved into a single output stream.
 func FromMultiSource(sources ...piper.Source) piper.Pipeline {
 	fanin := fanInSource{
 		out: make(chan any),
@@ -20,8 +25,11 @@ func FromMultiSource(sources ...piper.Source) piper.Pipeline {
 	return piper.PipelineFrom(fanin)
 }
 
+// Out returns the channel containing the combined output from all sources
 func (f fanInSource) Out() <-chan any { return f.out }
 
+// start begins reading from all sources and combining their output into a single stream.
+// It continues until all sources are exhausted.
 func (f fanInSource) start() {
 	defer close(f.out)
 	var (

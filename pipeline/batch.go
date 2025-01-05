@@ -5,17 +5,27 @@ import (
 	"time"
 )
 
+// BatcherOptions configures how items are batched together.
 type BatcherOptions struct {
-	MaxSize  int
+	// MaxSize is the maximum number of items to include in a batch before sending
+	MaxSize int
+	// Interval is the maximum time to wait before sending a batch, even if MaxSize hasn't been reached
 	Interval time.Duration
 }
 
+// batcher implements a pipeline component that groups incoming items into batches
+// based on size and/or time constraints.
 type batcher[In any] struct {
-	in      chan any
-	out     chan any
+	// in receives individual items to be batched
+	in chan any
+	// out sends completed batches
+	out chan any
+	// options controls batching behavior
 	options BatcherOptions
 }
 
+// Batch creates a new pipeline component that groups items into batches.
+// The batching behavior can be customized through the provided option functions.
 func Batch[In any](opts ...func(*BatcherOptions)) piper.Pipe {
 	options := BatcherOptions{
 		MaxSize: 1,
@@ -33,12 +43,16 @@ func Batch[In any](opts ...func(*BatcherOptions)) piper.Pipe {
 	return pipe
 }
 
+// BatchN creates a new batcher that groups exactly N items together before sending them downstream.
+// This is a convenience wrapper around Batch that sets only the MaxSize option.
 func BatchN[In any](size int) piper.Pipe {
 	return Batch[In](func(bo *BatcherOptions) {
 		bo.MaxSize = size
 	})
 }
 
+// BatchEvery creates a new batcher that sends batches at regular time intervals.
+// Any items received during the interval will be included in the next batch.
 func BatchEvery[In any](d time.Duration) piper.Pipe {
 	return Batch[In](func(bo *BatcherOptions) {
 		bo.Interval = d
@@ -49,6 +63,8 @@ func BatchEvery[In any](d time.Duration) piper.Pipe {
 func (b batcher[In]) In() chan<- any  { return b.in }
 func (b batcher[In]) Out() <-chan any { return b.out }
 
+// start begins the batching process, collecting items and sending batches based on the configured options.
+// It handles both size-based and time-based batching strategies.
 func (b batcher[In]) start() {
 	batch := b.newSlice()
 	defer close(b.out)
@@ -84,6 +100,8 @@ func (b batcher[In]) start() {
 	}
 }
 
+// send emits the current batch downstream and initializes a new empty batch.
+// If the current batch is empty, it is returned as-is without sending.
 func (b batcher[In]) send(batch []In) []In {
 	if len(batch) == 0 {
 		return batch
@@ -92,6 +110,7 @@ func (b batcher[In]) send(batch []In) []In {
 	return b.newSlice()
 }
 
+// newSlice creates a new empty slice to hold the next batch of items.
 func (b batcher[In]) newSlice() []In {
 	if b.options.MaxSize <= 0 {
 		return make([]In, 0)
