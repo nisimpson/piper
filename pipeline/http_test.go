@@ -41,14 +41,14 @@ func TestFromHTTP(t *testing.T) {
 		var (
 			server = httptest.NewServer(handlers["ok"])
 			source = pipeline.FromHTTP(http.MethodPost, server.URL, nil)
-			want   = []string{""}
-			got    = Consume[string](source)
+			got    = Consume[*http.Response](source)
 		)
 
 		defer server.Close()
 
-		if !reflect.DeepEqual(want, got) {
-			t.Errorf("wanted %#v, got %#v", want, got)
+		if len(got) != 1 {
+			t.Errorf("expected 1 response, got %d", len(got))
+			return
 		}
 	})
 
@@ -57,14 +57,29 @@ func TestFromHTTP(t *testing.T) {
 			server = httptest.NewServer(handlers["echo"])
 			body   = bytes.NewBufferString("hello, world!")
 			source = pipeline.FromHTTP(http.MethodPost, server.URL, body)
-			want   = []string{"hello, world!"}
-			got    = Consume[string](source)
+			got    = Consume[*http.Response](source)
 		)
 
 		defer server.Close()
 
-		if !reflect.DeepEqual(want, got) {
-			t.Errorf("wanted %#v, got %#v", want, got)
+		if len(got) != 1 {
+			t.Errorf("expected 1 response, got %d", len(got))
+			return
+		}
+
+		var (
+			res     = got[0]
+			payload = must.Return(io.ReadAll(res.Body))
+		)
+
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("expected status code %d, got %d", http.StatusOK, res.StatusCode)
+			return
+		}
+
+		if string(payload) != "hello, world!" {
+			t.Errorf("expected payload %q, got %q", "hello, world!", string(payload))
+			return
 		}
 	})
 
@@ -77,8 +92,8 @@ func TestFromHTTP(t *testing.T) {
 					hpo.HandleError = func(error) { handled[0] = true }
 				},
 			)
-			want = []string{}
-			got  = Consume[string](source)
+			want = []*http.Response{}
+			got  = Consume[*http.Response](source)
 		)
 
 		if !reflect.DeepEqual(want, got) {

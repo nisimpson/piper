@@ -42,7 +42,7 @@ type httpPipe struct {
 }
 
 // FromHTTP creates a new [piper.Pipeline] that starts by making an HTTP request.
-// The provided body is used for the initial request, and the response payload becomes the first pipeline item.
+// The provided body is used for the initial request, and the response becomes the first pipeline item.
 // Provide [HttpPipeOptions] to configure the default behavior.
 func FromHTTP(method string, url string, body io.Reader, opts ...func(*HttpPipeOptions)) piper.Pipeline {
 	source := httpPipe{
@@ -66,7 +66,7 @@ func FromHTTP(method string, url string, body io.Reader, opts ...func(*HttpPipeO
 }
 
 // SendHTTP creates a [piper.Pipe] component that sends each upstream item as an HTTP request.
-// By default, the response payloads from these requests become the output items in the pipeline.
+// By default, the responses from these requests become the output items in the pipeline.
 // Provide [HttpPipeOptions] to configure the default behavior.
 func SendHTTP(method string, url string, opts ...func(*HttpPipeOptions)) piper.Pipe {
 	pipe := httpPipe{
@@ -115,7 +115,6 @@ func (h httpPipe) start() {
 			data := must.Return(opts.MarshalFunc(item))
 			opts.Request.Body = io.NopCloser(bytes.NewBuffer(data))
 		}
-
 		res, err := opts.Client.Do(opts.Request)
 		if err != nil {
 			opts.HandleError(err)
@@ -126,7 +125,6 @@ func (h httpPipe) start() {
 			opts.HandleError(err)
 			continue
 		}
-		must.PanicOnError(res.Body.Close())
 		h.out <- output
 	}
 }
@@ -134,6 +132,5 @@ func (h httpPipe) start() {
 // passResponse is the default handling behavior. It extracts the response payload and sends
 // it downstream as a string.
 func (httpPipe) passResponse(res *http.Response) (any, error) {
-	data, err := io.ReadAll(res.Body)
-	return string(data), err
+	return res, nil
 }
