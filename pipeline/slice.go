@@ -11,7 +11,7 @@ type source struct {
 	out chan any
 }
 
-// FromSlice creates a new pipeline that starts with the provided slice items.
+// FromSlice creates a new [piper.Pipeline] that starts with the provided slice items.
 // Items are sent one at a time through the pipeline in the order they appear in the slice.
 func FromSlice[In any](items ...In) piper.Pipeline {
 	source := source{
@@ -24,9 +24,7 @@ func FromSlice[In any](items ...In) piper.Pipeline {
 	return piper.PipelineFrom(source)
 }
 
-func (s source) Out() <-chan any {
-	return s.out
-}
+func (s source) Out() <-chan any { return s.out }
 
 // sink implements a pipeline sink that collects all received items into a slice.
 // It provides synchronization capabilities to wait for and access the final slice.
@@ -39,8 +37,8 @@ type sink[In any] struct {
 	output []In
 }
 
-// ToSlice creates a new sink that collects all pipeline items into a slice.
-// The slice can be accessed using the Slice method after the pipeline completes.
+// ToSlice creates a new [piper.Sink] that collects all pipeline items into a slice.
+// The slice can be accessed using the [Slice] method after the pipeline completes.
 func ToSlice[In any]() *sink[In] {
 	sink := &sink[In]{
 		wg: sync.WaitGroup{},

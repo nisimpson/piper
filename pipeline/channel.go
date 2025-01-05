@@ -6,12 +6,12 @@ import "piper"
 // It converts the typed channel into the pipeline's generic any-typed channel system.
 type channelSource[T any] struct {
 	// in is the external typed channel from which data is read
-	in  <-chan T
+	in <-chan T
 	// out is the internal pipeline channel to which data is forwarded
 	out chan any
 }
 
-// FromChannel creates a new pipeline source from a typed channel.
+// FromChannel creates a new [piper.Pipeline] from a typed channel.
 // It allows existing channel-based code to be used as the input for a pipeline.
 func FromChannel[T any](ch <-chan T) piper.Pipeline {
 	source := channelSource[T]{
@@ -37,12 +37,12 @@ func (c channelSource[T]) start() {
 // It converts from the pipeline's generic any-typed system back to a typed channel.
 type channelSink[T any] struct {
 	// in is the internal pipeline channel from which data is read
-	in  chan any
+	in chan any
 	// out is the external typed channel to which data is forwarded
 	out chan<- T
 }
 
-// ToChannel creates a new pipeline sink that forwards data to a typed channel.
+// ToChannel creates a new pipeline [piper.Sink] that forwards data to a typed channel.
 // It allows pipeline output to be connected to existing channel-based code.
 func ToChannel[T any](ch chan<- T) piper.Sink {
 	sink := channelSink[T]{

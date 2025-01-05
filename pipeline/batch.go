@@ -5,11 +5,13 @@ import (
 	"time"
 )
 
-// BatcherOptions configures how items are batched together.
+// BatcherOptions configure both how and when items are batched together.
 type BatcherOptions struct {
-	// MaxSize is the maximum number of items to include in a batch before sending
+	// MaxSize is the maximum number of items to include in a batch before sending.
+	// For an unbounded size, set MaxSize to any value less than 1.
 	MaxSize int
-	// Interval is the maximum time to wait before sending a batch, even if MaxSize hasn't been reached
+	// Interval is the maximum time to wait before sending a batch, even if MaxSize hasn't been reached.
+	// To disable, set Interval to a zero duration.
 	Interval time.Duration
 }
 
@@ -24,7 +26,7 @@ type batcher[In any] struct {
 	options BatcherOptions
 }
 
-// Batch creates a new pipeline component that groups items into batches.
+// Batch creates a new [piper.Pipe] component that groups items into batches.
 // The batching behavior can be customized through the provided option functions.
 func Batch[In any](opts ...func(*BatcherOptions)) piper.Pipe {
 	options := BatcherOptions{
@@ -44,7 +46,7 @@ func Batch[In any](opts ...func(*BatcherOptions)) piper.Pipe {
 }
 
 // BatchN creates a new batcher that groups exactly N items together before sending them downstream.
-// This is a convenience wrapper around Batch that sets only the MaxSize option.
+// This is a convenience wrapper around [Batch] that sets only the MaxSize option.
 func BatchN[In any](size int) piper.Pipe {
 	return Batch[In](func(bo *BatcherOptions) {
 		bo.MaxSize = size
@@ -52,7 +54,8 @@ func BatchN[In any](size int) piper.Pipe {
 }
 
 // BatchEvery creates a new batcher that sends batches at regular time intervals.
-// Any items received during the interval will be included in the next batch.
+// Any items received during the interval will be included in the next batch. This is a
+// convenience wrapper around [Batch] that leaves the maximum size unbounded.
 func BatchEvery[In any](d time.Duration) piper.Pipe {
 	return Batch[In](func(bo *BatcherOptions) {
 		bo.Interval = d

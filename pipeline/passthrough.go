@@ -11,7 +11,7 @@ type passthroughPipe struct {
 	out chan any
 }
 
-// Passthrough creates a new pipeline component that forwards items without modification.
+// Passthrough creates a new [piper.Pipe] component that forwards items without modification.
 // This can be useful for debugging or when you need to maintain the pipeline structure without processing.
 func Passthrough() piper.Pipe {
 	pipe := passthroughPipe{

@@ -13,7 +13,7 @@ type flatmapper[In any, Out any] struct {
 	mapFunction MapFunction[In, []Out]
 }
 
-// FlatMap creates a new pipeline component that transforms items using the provided function.
+// FlatMap creates a new [piper.Pipe] component that transforms items using the provided [MapFunction].
 // Each input item is transformed into a slice of output items, which are then sent individually downstream.
 func FlatMap[In any, Out any](fn MapFunction[In, []Out]) piper.Pipe {
 	pipe := flatmapper[In, Out]{

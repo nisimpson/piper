@@ -14,8 +14,8 @@ type fanInSource struct {
 	sources []piper.Source
 }
 
-// FromMultiSource creates a new pipeline that reads from multiple sources simultaneously.
-// Data from all sources is interleaved into a single output stream.
+// FromMultiSource creates a new [piper.Pipeline] that reads from multiple sources simultaneously.
+// Data from all sources is interleaved into a single source stream.
 func FromMultiSource(sources ...piper.Source) piper.Pipeline {
 	fanin := fanInSource{
 		out: make(chan any),

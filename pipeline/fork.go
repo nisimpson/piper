@@ -2,31 +2,32 @@ package pipeline
 
 import "piper"
 
-// ForkKeyFunction is a function that determines the destination branch for each item in the fan-out.
+// ForkKeyFunction is a function that determines the destination branch for each item upstream.
 // It takes an item of type T and returns a string key identifying the target branch.
 type ForkKeyFunction[T any] func(T) string
 
 // ForkPipelineFunction represents a function that constructs a pipeline segment for a fork branch.
-// It takes a source and returns a pipeline that will process items sent to that branch.
+// It takes a [piper.Source] and returns a [piper.Pipeline] that will process items sent to that branch.
 type ForkPipelineFunction = func(source piper.Source) piper.Pipeline
 
 // forkSink implements a pipeline sink that distributes incoming items to multiple branches
 // based on a key function. Each branch can have its own processing pipeline.
 type forkSink[In any] struct {
-	// in receives items to be distributed
+	// in receives items to be distributed.
 	in chan any
-	// generators maps branch keys to functions that create the processing pipeline for that branch
+	// generators maps branch keys to functions that create the processing pipeline for that branch.
 	generators map[string]ForkPipelineFunction
-	// keyFunction determines which branch should receive each item
+	// keyFunction determines which branch should receive each item.
 	keyFunction ForkKeyFunction[In]
-	// sources holds the source end of each branch's pipeline
+	// sources holds the source end of each branch's pipeline.
 	sources []piper.Source
-	// channels maps branch keys to the channels used to send items to each branch
+	// channels maps branch keys to the channels used to send items to each branch.
 	channels map[string]chan In
 }
 
-// ToFork creates a fan-out sink that distributes items to multiple pipeline branches.
-// The keyfn determines which branch receives each item, and generators provide the processing pipeline for each branch.
+// ToFork creates a fan-out [piper.Sink] that distributes items to multiple [piper.Pipeline] branches.
+// The [ForkKeyFunction] keyfn determines which branch receives each item, and [ForkPipelineFunction] generators
+// provide the processing pipeline for each branch.
 func ToFork[In any](keyfn ForkKeyFunction[In], generators map[string]ForkPipelineFunction) forkSink[In] {
 	sink := forkSink[In]{
 		in:          make(chan any),
@@ -49,10 +50,10 @@ func ToFork[In any](keyfn ForkKeyFunction[In], generators map[string]ForkPipelin
 	return sink
 }
 
-// Sources returns the source ends of all branch pipelines
+// Sources returns the source ends of all branch pipelines.
 func (f forkSink[In]) Sources() []piper.Source { return f.sources }
 
-// In returns the channel used to send items into the fan-out sink
+// In returns the channel used to send items into the fan-out sink.
 func (f forkSink[In]) In() chan<- any { return f.in }
 
 // start begins distributing incoming items to their appropriate branches based on the key function.

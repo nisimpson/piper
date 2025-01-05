@@ -9,17 +9,17 @@ type ReduceFunction[T any] func(acc T, item T) T
 // reducer implements a pipeline component that combines multiple items into a single accumulated result.
 // It processes items one at a time, maintaining and updating an accumulator value.
 type reducer[T any] struct {
-	// in receives items to be reduced
+	// in receives items to be reduced.
 	in chan any
-	// out sends the current accumulated value after each reduction
+	// out sends the current accumulated value after each reduction.
 	out chan any
-	// reduceFunction combines the current accumulator with each new item
+	// reduceFunction combines the current accumulator with each new item.
 	reduceFunction ReduceFunction[T]
-	// acc holds the current accumulated value
+	// acc holds the current accumulated value.
 	acc any
 }
 
-// Reduce creates a new pipeline component that combines multiple items into one using the provided function.
+// Reduce creates a new [piper.Pipe] component that combines multiple items into one using the provided function.
 // The function is called for each item with the current accumulated value and the new item.
 func Reduce[T any](fn ReduceFunction[T]) piper.Pipe {
 	pipe := &reducer[T]{
@@ -32,13 +32,8 @@ func Reduce[T any](fn ReduceFunction[T]) piper.Pipe {
 	return pipe
 }
 
-func (r *reducer[T]) In() chan<- any {
-	return r.in
-}
-
-func (r *reducer[T]) Out() <-chan any {
-	return r.out
-}
+func (r *reducer[T]) In() chan<- any  { return r.in }
+func (r *reducer[T]) Out() <-chan any { return r.out }
 
 // start begins the reduction process, combining items one at a time and sending the current
 // accumulated value downstream after each combination.

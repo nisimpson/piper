@@ -18,8 +18,8 @@ type mapper[In any, Out any] struct {
 	transform MapFunction[In, Out]
 }
 
-// Map creates a new pipeline component that transforms items using the provided function.
-// Each input item is transformed from type In to type Out using the mapping function.
+// Map creates a new [piper.Pipe] component that transforms items using the provided function.
+// Each input item is transformed from type In to type Out using the [MapFunction] fn.
 func Map[In any, Out any](fn MapFunction[In, Out]) piper.Pipe {
 	pipe := mapper[In, Out]{
 		in:        make(chan any),
@@ -31,13 +31,8 @@ func Map[In any, Out any](fn MapFunction[In, Out]) piper.Pipe {
 	return pipe
 }
 
-func (m mapper[In, Out]) In() chan<- any {
-	return m.in
-}
-
-func (m mapper[In, Out]) Out() <-chan any {
-	return m.out
-}
+func (m mapper[In, Out]) In() chan<- any  { return m.in }
+func (m mapper[In, Out]) Out() <-chan any { return m.out }
 
 // start begins the transformation process, converting each input item to an output item
 // using the mapping function. Each transformed item is sent downstream.

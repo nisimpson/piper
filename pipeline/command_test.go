@@ -7,23 +7,20 @@ import (
 	"testing"
 )
 
-type EchoCommand struct {
-	input string
-	err   error
-}
-
-func (e EchoCommand) Execute(input string) (out string, exitcode int, err error) {
-	if e.input != "" {
-		return e.input, 0, e.err
-	}
-	return input, 0, e.err
+func EchoCommand(input string, err error) pipeline.Command[string, string] {
+	return pipeline.CommandFunc(func(in string) (string, int, error) {
+		if in != "" {
+			return in, 0, err
+		}
+		return input, 0, err
+	})
 }
 
 func TestFromCmd(t *testing.T) {
 	t.Parallel()
 
 	var (
-		source = pipeline.FromCmd(EchoCommand{input: "hello"})
+		source = pipeline.FromCmd(EchoCommand("hello", nil))
 		want   = []string{"hello"}
 		got    = Consume[string](source)
 	)
@@ -39,7 +36,7 @@ func TestExecCmd(t *testing.T) {
 
 	var (
 		source = pipeline.FromSlice("hello")
-		action = pipeline.ExecCmd(EchoCommand{})
+		action = pipeline.ExecCmd(EchoCommand("", nil))
 		want   = []string{"hello"}
 		got    = Consume[string](source.Then(action))
 	)
@@ -53,8 +50,8 @@ func TestExecCmd(t *testing.T) {
 		var (
 			handled = []bool{false}
 			source  = pipeline.FromSlice("hello")
-			action  = pipeline.ExecCmd(EchoCommand{err: errors.New("an error")},
-				func(cpo *pipeline.CommandPipeOptions) {
+			action  = pipeline.ExecCmd(EchoCommand("", errors.New("an error")),
+				func(cpo *pipeline.CommandPipeOptions[string]) {
 					cpo.HandleError = func(err error) { handled[0] = true }
 				},
 			)

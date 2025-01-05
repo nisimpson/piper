@@ -13,7 +13,7 @@ type nullSink struct {
 	in chan any
 }
 
-// ToNull creates a new sink that discards all items it receives.
+// ToNull creates a new [piper.Sink] that discards all items it receives.
 // This is useful when you want to execute a pipeline but don't need its output.
 func ToNull() nullSink {
 	sink := nullSink{
@@ -25,12 +25,14 @@ func ToNull() nullSink {
 	return sink
 }
 
-// Wait blocks until all items have been processed and discarded
-func (n nullSink) Wait()          { n.wg.Wait() }
-// In returns the channel used to send items to be discarded
+// Wait blocks until all items have been processed and discarded.
+func (n nullSink) Wait() { n.wg.Wait() }
+
+// In returns the channel used to send items to be discarded.
 func (n nullSink) In() chan<- any { return n.in }
-// noop is an empty operation that consumes an item without doing anything
-func (nullSink) noop(any)         {}
+
+// noop is an empty operation that consumes an item without doing anything.
+func (nullSink) noop(any) {}
 
 // start begins consuming and discarding items from the input channel.
 // It signals completion through the WaitGroup when all items have been processed.

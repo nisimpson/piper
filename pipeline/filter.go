@@ -16,7 +16,7 @@ type filterPipe[In any] struct {
 	filterFunc FilterFunction[In]
 }
 
-// Filter creates a new pipeline component that uses the provided function to filter items.
+// Filter creates a new pipeline component that uses the provided [FilterFunction] to filter items.
 // Only items for which fn returns true will be passed downstream.
 func Filter[In any](fn FilterFunction[In]) piper.Pipe {
 	pipe := filterPipe[In]{
@@ -29,14 +29,14 @@ func Filter[In any](fn FilterFunction[In]) piper.Pipe {
 	return pipe
 }
 
-// KeepIf is an alias for Filter that creates a more readable pipeline when the intent
-// is to keep items that match a condition. It has identical behavior to Filter.
+// KeepIf is an alias for [Filter] that creates a more readable pipeline when the intent
+// is to keep items that match a condition.
 func KeepIf[In any](fn FilterFunction[In]) piper.Pipe {
 	return Filter(fn)
 }
 
-// DropIf creates a filter that drops items matching the condition and keeps everything else.
-// It inverts the behavior of the provided filter function.
+// DropIf creates a [Filter] that drops items matching the condition and keeps everything else.
+// It inverts the behavior of the provided [FilterFunction].
 func DropIf[In any](fn FilterFunction[In]) piper.Pipe {
 	return Filter(func(in In) bool { return !fn(in) })
 }
