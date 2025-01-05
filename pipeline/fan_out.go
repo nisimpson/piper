@@ -14,7 +14,7 @@ type fanOutSink[In any] struct {
 	channels    map[string]chan In
 }
 
-func FanOut[In any](keyfn KeyFunction[In], generators map[string]FanOutPipelineFunction) fanOutSink[In] {
+func ToMultiSource[In any](keyfn KeyFunction[In], generators map[string]FanOutPipelineFunction) fanOutSink[In] {
 	sink := fanOutSink[In]{
 		in:          make(chan any),
 		keyFunction: keyfn,

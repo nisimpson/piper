@@ -11,7 +11,7 @@ type fanInSource struct {
 	sources []piper.Source
 }
 
-func FanIn(sources ...piper.Source) piper.Pipeline {
+func FromMultiSource(sources ...piper.Source) piper.Pipeline {
 	fanin := fanInSource{
 		out: make(chan any),
 	}

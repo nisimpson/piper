@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestFanOut(t *testing.T) {
+func TestToMultiSource(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -28,6 +28,8 @@ func TestFanOut(t *testing.T) {
 
 	keyFn := func(in int) string {
 		if in == 0 {
+			// "zeros" is a key without an associated generator, so any value
+			// emitting this key will be dropped by the pipeline.
 			return "zeros"
 		}
 		switch in % 2 {
@@ -38,7 +40,7 @@ func TestFanOut(t *testing.T) {
 		}
 	}
 
-	sink := pipeline.FanOut(keyFn, generators)
+	sink := pipeline.ToMultiSource(keyFn, generators)
 	source.To(sink)
 
 	sources := sink.Sources()
