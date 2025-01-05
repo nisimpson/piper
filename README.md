@@ -94,11 +94,13 @@ combined := pipeline.FromMultiSource(source1, source2)
 ### Reduce Example
 ```go
 // Sum all numbers in a pipeline
-source := pipeline.FromSlice(1, 2, 3, 4, 5)
 sum := func(acc, item int) int { return acc + item }
-result := source.Then(pipeline.Reduce(sum))
 
-// The final value will be 15
+// The final values will be [1, 3, 6, 10, 15]
+pipeline.
+    FromSlice(1, 2, 3, 4, 5).
+    Then(pipeline.Reduce(sum)).
+    To(pipeline.ToSlice())
 ```
 
 ## Installation
