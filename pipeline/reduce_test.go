@@ -16,7 +16,7 @@ func TestReduce(t *testing.T) {
 		action = pipeline.Reduce(adder)
 	)
 
-	source = source.Then(action)
+	source = source.Thru(action)
 
 	var (
 		want = []int{1, 3, 6, 10} // [(1), (1 + 2), (3 + 3), (6 + 4)]

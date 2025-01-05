@@ -15,7 +15,7 @@ func TestPassthrough(t *testing.T) {
 		action = pipeline.Passthrough()
 	)
 
-	source = source.Then(action)
+	source = source.Thru(action)
 
 	var (
 		want = []int{1, 2, 3, 4}

@@ -1,4 +1,4 @@
-package shell
+package command
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 
 type shellCommands []*exec.Cmd
 
-func Commands(cmds ...*exec.Cmd) pipeline.Command[string, string] {
+func Shell(cmds ...*exec.Cmd) pipeline.Command[string, string] {
 	return shellCommands(cmds)
 }
 

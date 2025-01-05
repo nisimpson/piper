@@ -207,7 +207,7 @@ func TestSendHTTP(t *testing.T) {
 	)
 
 	defer server.Close()
-	source = source.Then(action)
+	source = source.Thru(action)
 
 	var (
 		want = []response{{Value: 4}}

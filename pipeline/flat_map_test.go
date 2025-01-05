@@ -19,7 +19,7 @@ func TestFlatMap(t *testing.T) {
 	source := pipeline.FromSlice(
 		node{children: []node{{}, {}}},
 		node{children: []node{{}, {}, {}}},
-	).Then(pipeline.FlatMap(getChildren))
+	).Thru(pipeline.FlatMap(getChildren))
 
 	want := []node{{}, {}, {}, {}, {}}
 	got := Consume[node](source)

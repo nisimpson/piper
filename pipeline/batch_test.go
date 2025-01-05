@@ -13,7 +13,7 @@ func TestBatchN(t *testing.T) {
 
 	source := pipeline.
 		FromSlice(1, 2, 3, 4).
-		Then(pipeline.BatchN[int](2))
+		Thru(pipeline.BatchN[int](2))
 
 	var (
 		want = [][]int{{1, 2}, {3, 4}}
@@ -33,7 +33,7 @@ func TestBatchEvery(t *testing.T) {
 			in     = make(chan int)
 			source = pipeline.
 				FromChannel(in).
-				Then(pipeline.BatchEvery[int](time.Millisecond))
+				Thru(pipeline.BatchEvery[int](time.Millisecond))
 		)
 
 		go func() {
@@ -59,7 +59,7 @@ func TestBatchEvery(t *testing.T) {
 		// the source will close before the batch timer is triggered.
 		source := pipeline.
 			FromSlice(1, 2, 3, 4).
-			Then(pipeline.BatchEvery[int](1 * time.Hour))
+			Thru(pipeline.BatchEvery[int](1 * time.Hour))
 
 		var (
 			want = [][]int{{1, 2, 3, 4}}
@@ -80,7 +80,7 @@ func TestBatch(t *testing.T) {
 			in     = make(chan int)
 			source = pipeline.
 				FromChannel(in).
-				Then(pipeline.Batch[int](func(bo *pipeline.BatcherOptions) {
+				Thru(pipeline.Batch[int](func(bo *pipeline.BatcherOptions) {
 					bo.Interval = time.Millisecond
 					bo.MaxSize = 3
 				}))

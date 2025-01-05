@@ -39,7 +39,7 @@ func TestExecCmd(t *testing.T) {
 		source = pipeline.FromSlice("hello")
 		action = pipeline.ExecCmd(EchoCommand("", nil))
 		want   = []string{"hello"}
-		got    = Consume[string](source.Then(action))
+		got    = Consume[string](source.Thru(action))
 	)
 
 	if !reflect.DeepEqual(want, got) {
@@ -57,7 +57,7 @@ func TestExecCmd(t *testing.T) {
 				},
 			)
 			want = []string{}
-			got  = Consume[string](source.Then(action))
+			got  = Consume[string](source.Thru(action))
 		)
 
 		if !reflect.DeepEqual(want, got) {

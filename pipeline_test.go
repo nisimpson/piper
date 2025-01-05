@@ -26,7 +26,7 @@ func TestPipeline(t *testing.T) {
 			sink   = pipeline.ToSlice[int]()
 		)
 
-		source.Then(action).To(sink)
+		source.Thru(action).To(sink)
 
 		var (
 			want = []int{2, 4, 6, 8}

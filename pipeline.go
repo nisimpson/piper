@@ -3,10 +3,10 @@ package piper
 import "sync"
 
 // Pipeline represents a data processing pipeline that connects various components together.
-// It manages the flow of data from a source through optional intermediate processing steps
-// to eventual sinks.
+// It manages the flow of data from a [Source] through optional intermediate [Pipe] processing steps
+// to a [Sink].
 type Pipeline struct {
-	// outlet is the current endpoint from which data flows in this pipeline segment
+	// outlet is the current endpoint from which data flows in this pipeline segment.
 	outlet Outlet
 }
 
@@ -16,10 +16,10 @@ func PipelineFrom(source Source) Pipeline {
 	return Pipeline{outlet: source}
 }
 
-// Then adds one or more processing steps to the pipeline.
-// Each pipe is connected in sequence, with data flowing from one to the next.
-// Returns a new Pipeline instance representing the updated pipeline.
-func (p Pipeline) Then(pipes ...Pipe) Pipeline {
+// Thru adds one or more processing steps to the pipeline.
+// Each [Pipe] is connected in sequence (indexed order), with data flowing from one to the next.
+// Returns a new [Pipeline] instance representing the updated pipeline.
+func (p Pipeline) Thru(pipes ...Pipe) Pipeline {
 	for _, pipe := range pipes {
 		go p.transmit(pipe)
 		p = Pipeline{outlet: pipe}
@@ -27,7 +27,7 @@ func (p Pipeline) Then(pipes ...Pipe) Pipeline {
 	return p
 }
 
-// To connects a sink to the end of the pipeline.
+// To connects a [Sink] to the end of the [Pipeline].
 // This is typically the final step in pipeline construction, establishing
 // where the processed data will ultimately be delivered.
 func (p Pipeline) To(sink Sink) {
@@ -35,14 +35,14 @@ func (p Pipeline) To(sink Sink) {
 }
 
 // Tee splits the pipeline into two branches.
-// The same data will be sent to both pipe1 and pipe2, allowing for parallel processing paths.
-// Returns two new Pipeline instances, one for each branch.
+// The same data will be sent to both pipe1 and pipe2, allowing for parallelized processing paths.
+// Returns two new [Pipeline] instances, one for each branch.
 func (p Pipeline) Tee(pipe1, pipe2 Pipe) (Pipeline, Pipeline) {
 	go p.tee(pipe1, pipe2)
 	return Pipeline{outlet: pipe1}, Pipeline{outlet: pipe2}
 }
 
-// Out returns the output channel of the pipeline.
+// Out returns the output channel of the [Pipeline].
 // This channel can be used to read processed data directly from the pipeline.
 func (p Pipeline) Out() <-chan any {
 	return p.outlet.Out()

@@ -20,10 +20,10 @@ func TestDemux(t *testing.T) {
 
 	generators := map[string]pipeline.DemuxPipelineFunction{
 		"evens": func(s piper.Source) piper.Pipeline {
-			return piper.PipelineFrom(s).Then(pipeline.Map(double))
+			return piper.PipelineFrom(s).Thru(pipeline.Map(double))
 		},
 		"odds": func(s piper.Source) piper.Pipeline {
-			return piper.PipelineFrom(s).Then(pipeline.Map(triple))
+			return piper.PipelineFrom(s).Thru(pipeline.Map(triple))
 		},
 	}
 
