@@ -14,6 +14,12 @@ Piper is a Go library that enables the creation of composable data pipelines usi
   - Fan-out: Split data streams
   - Fan-in: Combine data streams
 
+## Installation
+
+```bash
+go get github.com/nisimpson/piper
+```
+
 ## Examples
 
 ### Basic Pipeline with Map Operation
@@ -101,12 +107,6 @@ pipeline.
     FromSlice(1, 2, 3, 4, 5).
     Then(pipeline.Reduce(sum)).
     To(pipeline.ToSlice())
-```
-
-## Installation
-
-```bash
-go get github.com/nisimpson/piper
 ```
 
 ## Contributing
