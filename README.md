@@ -43,7 +43,7 @@ for num := range result.Out() {
 ```go
 // Create a pipeline that keeps only even numbers
 source := pipeline.FromSlice(1, 2, 3, 4, 5, 6)
-isEven := func(n int) bool { return n%2 == 0 }
+isEven := func(n int) bool { return n % 2 == 0 }
 result := source.Then(pipeline.Filter(isEven))
 
 // Or using the more expressive KeepIf
