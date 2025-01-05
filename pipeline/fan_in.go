@@ -25,7 +25,7 @@ func FromMultiSource(sources ...piper.Source) piper.Pipeline {
 	return piper.PipelineFrom(fanin)
 }
 
-// Out returns the channel containing the combined output from all sources
+// Out returns the channel containing the combined output from all sources.
 func (f fanInSource) Out() <-chan any { return f.out }
 
 // start begins reading from all sources and combining their output into a single stream.

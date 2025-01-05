@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestToMultiSource(t *testing.T) {
+func TestToFork(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -17,7 +17,7 @@ func TestToMultiSource(t *testing.T) {
 		triple = func(in int) int { return in * 3 }
 	)
 
-	generators := map[string]pipeline.FanOutPipelineFunction{
+	generators := map[string]pipeline.ForkPipelineFunction{
 		"evens": func(s piper.Source) piper.Pipeline {
 			return piper.PipelineFrom(s).Then(pipeline.Map(double))
 		},
@@ -40,7 +40,7 @@ func TestToMultiSource(t *testing.T) {
 		}
 	}
 
-	sink := pipeline.ToMultiSource(keyFn, generators)
+	sink := pipeline.ToFork(keyFn, generators)
 	source.To(sink)
 
 	sources := sink.Sources()
