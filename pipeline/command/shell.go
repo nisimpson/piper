@@ -38,6 +38,12 @@ func (s shellCommands) Execute(input string) (out string, exitcode int, err erro
 	return "", 0, io.EOF
 }
 
+// executeAll executes all commands in the sequence, connecting their outputs and inputs.
+// It collects the output of the last command and any errors that occurred during execution.
+// Returns:
+//   - out: the final command's standard output as a string
+//   - exitcode: the exit code if any command failed (0 otherwise)
+//   - err: any error that occurred during execution
 func (s shellCommands) executeAll(input string) (out string, exitcode int, err error) {
 	var (
 		// errbuf collects error output from all commands
@@ -73,6 +79,7 @@ func (s shellCommands) executeAll(input string) (out string, exitcode int, err e
 	reversed = append(reversed, s...)
 	slices.Reverse(reversed)
 
+	// start commands
 	for _, cmd := range reversed {
 		must.PanicOnError(cmd.Start())
 	}
@@ -96,6 +103,12 @@ func (s shellCommands) executeAll(input string) (out string, exitcode int, err e
 	return
 }
 
+// executeOne executes the first and only command in the slice.
+// It collects the output of the last command and any errors that occurred during execution.
+// Returns:
+//   - out: the final command's standard output as a string
+//   - exitcode: the exit code if any command failed (0 otherwise)
+//   - err: any error that occurred during execution
 func (s shellCommands) executeOne(input string) (out string, exitcode int, err error) {
 	cmd := s[0]
 	cmd.Stdin = bytes.NewBufferString(input) // the first command's input is the input string
