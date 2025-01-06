@@ -28,3 +28,19 @@ func TestFlatMap(t *testing.T) {
 		t.Errorf("wanted %#v, got %#v", want, got)
 	}
 }
+
+func TestFlatten(t *testing.T) {
+	t.Parallel()
+
+	source := pipeline.FromSlice(
+		[]int{1, 2, 3},
+		[]int{4, 5, 6},
+	).Thru(pipeline.Flatten[int]())
+
+	want := []int{1, 2, 3, 4, 5, 6}
+	got := Consume[int](source)
+
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("wanted %#v, got %#v", want, got)
+	}
+}
