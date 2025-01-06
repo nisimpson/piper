@@ -53,12 +53,12 @@ func (s shellCommands) Execute(input string) (out string, exitcode int, err erro
 		cur = next
 	}
 
-	output :=
+	// last command's output
+	output := must.Return(cur.StdoutPipe())
 
-		// reverse the slice of commands to execute them in the correct order
-		slices.Reverse(s)
+	// reverse the slice of commands to execute them in the correct order
+	slices.Reverse(s)
 	for _, cmd := range s {
-
 		var werr *exec.ExitError
 		if err := cmd.Wait(); errors.As(err, &werr) {
 			// Extract exit code if command failed
@@ -69,7 +69,7 @@ func (s shellCommands) Execute(input string) (out string, exitcode int, err erro
 		}
 	}
 
-	out = outbuf.String()
+	out = string(must.Return(io.ReadAll(output)))
 	err = errors.Join(errs...)
 	if len(exitcodes) > 0 {
 		exitcode = exitcodes[0]
