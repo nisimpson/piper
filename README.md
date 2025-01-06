@@ -1,5 +1,9 @@
 # piper
 
+[![Test](https://github.com/nisimpson/piper/actions/workflows/test.yml/badge.svg)](https://github.com/nisimpson/piper/actions/workflows/test.yml)
+[![GoDoc](https://godoc.org/github.com/nisimpson/piper?status.svg)](http://godoc.org/github.com/nisimpson/piper)
+[![Release](https://img.shields.io/github/release/nisimpson/piper.svg)](https://github.com/nisimpson/piper/releases)
+
 Piper is a Go library that enables the creation of composable data pipelines using Go channels.
 It provides a set of primitives for building concurrent data processing pipelines with operations
 like map, filter, reduce, fan-out, and fan-in.
