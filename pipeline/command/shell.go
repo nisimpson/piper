@@ -22,15 +22,28 @@ func FromShell(cmds ...*exec.Cmd) pipeline.Command[string, string] {
 	return shellCommands(cmds)
 }
 
+// Execute runs the chain of shell commands with the given input string.
+// It connects the commands using pipes and executes them in sequence.
+// Returns:
+//   - out: the final command's standard output as a string
+//   - exitcode: the exit code if any command failed (0 otherwise)
+//   - err: any error that occurred during execution
 func (s shellCommands) Execute(input string) (out string, exitcode int, err error) {
-	if len(s) == 0 {
-		// nothing to do
-		return "", 0, nil
+	if len(s) == 1 {
+		return s.executeOne(input)
+	} else if len(s) > 1 {
+		return s.executeAll(input)
 	}
+	// nothing to do.
+	return "", 0, io.EOF
+}
 
+func (s shellCommands) executeAll(input string) (out string, exitcode int, err error) {
 	var (
 		// errbuf collects error output from all commands
 		errbuf bytes.Buffer
+		// outbuf collects output from last command
+		outbuf bytes.Buffer
 		// capture all error codes generated
 		exitcodes = make([]int, len(s))
 		// capture all errors generated
@@ -42,9 +55,8 @@ func (s shellCommands) Execute(input string) (out string, exitcode int, err erro
 	cur.Stderr = &errbuf                     // all commands share the same error buffer
 
 	for i := 1; i < len(s); i++ {
+		// set up stdout routing between commands
 		stdout := must.Return(cur.StdoutPipe())
-
-		// execute the next command
 		next := s[i]
 		next.Stdin = stdout
 		next.Stderr = &errbuf
@@ -54,14 +66,21 @@ func (s shellCommands) Execute(input string) (out string, exitcode int, err erro
 	}
 
 	// last command's output
-	output := must.Return(cur.StdoutPipe())
+	cur.Stdout = &outbuf
 
 	// reverse the slice of commands to execute them in the correct order
-	slices.Reverse(s)
+	reversed := make(shellCommands, 0, len(s))
+	reversed = append(reversed, s...)
+	slices.Reverse(reversed)
+
+	for _, cmd := range reversed {
+		must.PanicOnError(cmd.Start())
+	}
+
+	// wait for all of the commands to finish
 	for _, cmd := range s {
 		var werr *exec.ExitError
 		if err := cmd.Wait(); errors.As(err, &werr) {
-			// Extract exit code if command failed
 			exitcodes = append(exitcodes, werr.ExitCode())
 			errs = append(errs, err)
 		} else if err != nil {
@@ -69,7 +88,7 @@ func (s shellCommands) Execute(input string) (out string, exitcode int, err erro
 		}
 	}
 
-	out = string(must.Return(io.ReadAll(output)))
+	out = outbuf.String()
 	err = errors.Join(errs...)
 	if len(exitcodes) > 0 {
 		exitcode = exitcodes[0]
@@ -77,73 +96,14 @@ func (s shellCommands) Execute(input string) (out string, exitcode int, err erro
 	return
 }
 
-// Execute runs the chain of shell commands with the given input string.
-// It connects the commands using pipes and executes them in sequence.
-// Returns:
-//   - out: the final command's standard output as a string
-//   - exitcode: the exit code if any command failed (0 otherwise)
-//   - err: any error that occurred during execution
-func (s shellCommands) Execute2(input string) (out string, exitcode int, err error) {
-	var (
-		// errbuf collects error output from all commands
-		errbuf bytes.Buffer
-		// outbuf stores the final command's output
-		outbuf bytes.Buffer
-		// pipes holds the pipe writers connecting each command
-		pipes = make([]*io.PipeWriter, len(s)-1)
-		// i is used as an index for setting up command pipes
-		i = 0
-	)
-
-	// Set up pipes between sequential commands
-	for ; i < len(s)-1; i++ {
-		stdin, stdout := io.Pipe()
-		s[i].Stdout = stdout  // Connect command output to pipe
-		s[i].Stderr = &errbuf // Collect stderr output
-		s[i+1].Stdin = stdin  // Connect next command's input to pipe
-		pipes[i] = stdout     // Store pipe for later cleanup
-	}
-
-	// Configure the last command's I/O
-	s[i].Stdin = bytes.NewBufferString(input) // Feed input string to first command
-	s[i].Stdout = &outbuf                     // Collect final output
-	s[i].Stderr = &errbuf                     // Collect stderr output
-
-	// Execute the command chain
-	err = s.call(s, pipes)
-	out = outbuf.String()
-
-	// Extract exit code if command failed
-	if werr, ok := err.(*exec.ExitError); ok {
+func (s shellCommands) executeOne(input string) (out string, exitcode int, err error) {
+	cmd := s[0]
+	cmd.Stdin = bytes.NewBufferString(input) // the first command's input is the input string
+	output, err := cmd.Output()
+	var werr *exec.ExitError
+	if errors.As(err, &werr) {
+		// Extract exit code if command failed
 		exitcode = werr.ExitCode()
 	}
-
-	return out, exitcode, err
-}
-
-// call recursively executes a chain of commands connected by pipes.
-// It ensures proper sequential execution of commands where each command's output
-// feeds into the next command's input through the provided pipes.
-func (s shellCommands) call(stack []*exec.Cmd, pipes []*io.PipeWriter) (err error) {
-	// Start the first command if it hasn't been started yet
-	if stack[0].Process == nil {
-		if err = stack[0].Start(); err != nil {
-			return err
-		}
-	}
-
-	// If there are more commands in the chain, start the next one
-	if len(stack) > 1 {
-		if err = stack[1].Start(); err != nil {
-			return err
-		}
-		// After the current command finishes, close its pipe and continue the chain
-		defer func() {
-			if err == nil {
-				pipes[0].Close()
-				err = s.call(stack[1:], pipes[1:])
-			}
-		}()
-	}
-	return stack[0].Wait()
+	return string(output), exitcode, err
 }
