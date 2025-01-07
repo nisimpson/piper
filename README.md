@@ -34,7 +34,7 @@ go get github.com/nisimpson/piper
 // Create a pipeline that doubles numbers
 source := pipeline.FromSlice(1, 2, 3, 4)
 double := func(in int) int { return in * 2 }
-result := source.Then(pipeline.Map(double))
+result := source.Thru(pipeline.Map(double))
 
 // Consume the results
 for num := range result.Out() {
@@ -48,20 +48,22 @@ for num := range result.Out() {
 // Create a pipeline that keeps only even numbers
 source := pipeline.FromSlice(1, 2, 3, 4, 5, 6)
 isEven := func(n int) bool { return n % 2 == 0 }
-result := source.Then(pipeline.Filter(isEven))
+result := source.Thru(pipeline.Filter(isEven))
 
 // Or using the more expressive KeepIf
-result := source.Then(pipeline.KeepIf(isEven))
+result := source.Thru(pipeline.KeepIf(isEven))
 ```
 
 ### Complex Pipeline with Multiple Operations
 
 ```go
-source := pipeline.FromSlice(1, 2, 3, 4, 5)
-pipeline := source.
-    Then(pipeline.Map(func(n int) int { return n * 2 })).
-    Then(pipeline.Filter(func(n int) bool { return n > 5 })).
-    Then(pipeline.Map(func(n int) string { return fmt.Sprintf("Value: %d", n) }))
+source := pipeline.
+    FromSlice(1, 2, 3, 4, 5).
+    Thru(
+        pipeline.Map(func(n int) int { return n * 2 }),
+        pipeline.Filter(func(n int) bool { return n > 5 }),
+        pipeline.Map(func(n int) string { return fmt.Sprintf("Value: %d", n) }),
+    )
 ```
 
 ### Fan-Out Example
@@ -111,7 +113,7 @@ sum := func(acc, item int) int { return acc + item }
 // The final values will be [1, 3, 6, 10, 15]
 pipeline.
     FromSlice(1, 2, 3, 4, 5).
-    Then(pipeline.Reduce(sum)).
+    Thru(pipeline.Reduce(sum)).
     To(pipeline.ToSlice())
 ```
 
