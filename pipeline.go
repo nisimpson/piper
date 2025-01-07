@@ -76,3 +76,29 @@ func (p Pipeline) tee(in1, in2 Inlet) {
 	close(in1.In())
 	close(in2.In())
 }
+
+type JoinedPipe struct {
+	from Pipe
+	to   Pipe
+}
+
+func Join(from, to Pipe) Pipe {
+	pipe := JoinedPipe{from: from, to: to}
+	go pipe.start()
+	return pipe
+}
+
+func (p JoinedPipe) In() chan<- any {
+	return p.from.In()
+}
+
+func (p JoinedPipe) Out() <-chan any {
+	return p.to.Out()
+}
+
+func (p JoinedPipe) start() {
+	defer close(p.to.In())
+	for input := range p.from.Out() {
+		p.to.In() <- input
+	}
+}
