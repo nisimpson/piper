@@ -50,7 +50,8 @@ func mapToQueryInput[In any](mapfn QueryMapFunction[In]) piper.Pipe {
 func Query[In any](q Querier, ctx context.Context, mapfn QueryMapFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
 	return piper.Join(
-		mapToQueryInput(mapfn),
-		sendQuery(q, ctx, options),
+		mapToQueryInput(mapfn),     // convert input data into query request
+		sendQuery(q, ctx, options), // send dynamodb query
+		dropIfNil(),                // if result is nil, do not pass it along
 	)
 }

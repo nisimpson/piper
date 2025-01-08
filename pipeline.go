@@ -82,7 +82,18 @@ type JoinedPipe struct {
 	to   Pipe
 }
 
-func Join(from, to Pipe) Pipe {
+func Join(from Pipe, to ...Pipe) Pipe {
+	if len(to) == 0 {
+		return from
+	}
+	cur := from
+	for _, p := range to {
+		cur = join(cur, p)
+	}
+	return cur
+}
+
+func join(from, to Pipe) Pipe {
 	pipe := JoinedPipe{from: from, to: to}
 	go pipe.start()
 	return pipe

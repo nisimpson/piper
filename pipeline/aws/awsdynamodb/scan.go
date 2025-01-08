@@ -50,7 +50,8 @@ func mapToScanInput[In any](mapfn ScanMapFunction[In]) piper.Pipe {
 func Scan[In any](s Scanner, ctx context.Context, mapfn ScanMapFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
 	return piper.Join(
-		mapToScanInput(mapfn),
-		sendScan(s, ctx, options),
+		mapToScanInput(mapfn),     // convert input into scan request
+		sendScan(s, ctx, options), // send scan request
+		dropIfNil(),               // do not pass nil results along
 	)
 }
