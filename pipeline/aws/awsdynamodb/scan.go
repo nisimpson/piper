@@ -39,15 +39,15 @@ func FromScan(s Scanner, ctx context.Context, input *dynamodb.ScanInput, opts ..
 	return p    // return the pipeline
 }
 
-type ScanMapFunction[In any] func(In) *dynamodb.ScanInput
+type MapScanFunction[In any] func(In) *dynamodb.ScanInput
 
-func mapToScanInput[In any](mapfn ScanMapFunction[In]) piper.Pipe {
+func mapToScanInput[In any](mapfn MapScanFunction[In]) piper.Pipe {
 	return pipeline.Map(func(input In) *dynamodb.ScanInput {
 		return mapfn(input)
 	})
 }
 
-func Scan[In any](s Scanner, ctx context.Context, mapfn ScanMapFunction[In], opts ...func(*Options)) piper.Pipe {
+func Scan[In any](s Scanner, ctx context.Context, mapfn MapScanFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
 	return piper.Join(
 		mapToScanInput(mapfn),     // convert input into scan request

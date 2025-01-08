@@ -39,15 +39,15 @@ func FromQuery(q Querier, ctx context.Context, input *dynamodb.QueryInput, opts 
 	return p    // return the pipeline
 }
 
-type QueryMapFunction[In any] func(In) *dynamodb.QueryInput
+type MapQueryFunction[In any] func(In) *dynamodb.QueryInput
 
-func mapToQueryInput[In any](mapfn QueryMapFunction[In]) piper.Pipe {
+func mapToQueryInput[In any](mapfn MapQueryFunction[In]) piper.Pipe {
 	return pipeline.Map(func(input In) *dynamodb.QueryInput {
 		return mapfn(input)
 	})
 }
 
-func Query[In any](q Querier, ctx context.Context, mapfn QueryMapFunction[In], opts ...func(*Options)) piper.Pipe {
+func Query[In any](q Querier, ctx context.Context, mapfn MapQueryFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
 	return piper.Join(
 		mapToQueryInput(mapfn),     // convert input data into query request
