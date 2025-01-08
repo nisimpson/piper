@@ -77,7 +77,7 @@ func (p Pipeline) tee(in1, in2 Inlet) {
 	close(in2.In())
 }
 
-type JoinedPipe struct {
+type joinedPipe struct {
 	source Pipe
 	target Pipe
 }
@@ -90,16 +90,16 @@ func Join(src Pipe, into ...Pipe) Pipe {
 	return src
 }
 
-func newJoinedPipe(src, tgt Pipe) JoinedPipe {
-	pipe := JoinedPipe{source: src, target: tgt}
+func newJoinedPipe(src, tgt Pipe) joinedPipe {
+	pipe := joinedPipe{source: src, target: tgt}
 	go pipe.start()
 	return pipe
 }
 
-func (p JoinedPipe) In() chan<- any  { return p.source.In() }
-func (p JoinedPipe) Out() <-chan any { return p.target.Out() }
+func (p joinedPipe) In() chan<- any  { return p.source.In() }
+func (p joinedPipe) Out() <-chan any { return p.target.Out() }
 
-func (p JoinedPipe) start() {
+func (p joinedPipe) start() {
 	defer close(p.target.In())
 	for input := range p.source.Out() {
 		p.target.In() <- input
