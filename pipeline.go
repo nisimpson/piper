@@ -96,13 +96,8 @@ func newJoinedPipe(src, tgt Pipe) JoinedPipe {
 	return pipe
 }
 
-func (p JoinedPipe) In() chan<- any {
-	return p.source.In()
-}
-
-func (p JoinedPipe) Out() <-chan any {
-	return p.target.Out()
-}
+func (p JoinedPipe) In() chan<- any  { return p.source.In() }
+func (p JoinedPipe) Out() <-chan any { return p.target.Out() }
 
 func (p JoinedPipe) start() {
 	defer close(p.target.In())
