@@ -78,38 +78,35 @@ func (p Pipeline) tee(in1, in2 Inlet) {
 }
 
 type JoinedPipe struct {
-	from Pipe
-	to   Pipe
+	source Pipe
+	target Pipe
 }
 
-func Join(from Pipe, to ...Pipe) Pipe {
-	if len(to) == 0 {
-		return from
+func Join(src Pipe, into ...Pipe) Pipe {
+	// join each pipe in indexed order
+	for _, tgt := range into {
+		src = newJoinedPipe(src, tgt)
 	}
-	cur := from
-	for _, p := range to {
-		cur = join(cur, p)
-	}
-	return cur
+	return src
 }
 
-func join(from, to Pipe) Pipe {
-	pipe := JoinedPipe{from: from, to: to}
+func newJoinedPipe(src, tgt Pipe) JoinedPipe {
+	pipe := JoinedPipe{source: src, target: tgt}
 	go pipe.start()
 	return pipe
 }
 
 func (p JoinedPipe) In() chan<- any {
-	return p.from.In()
+	return p.source.In()
 }
 
 func (p JoinedPipe) Out() <-chan any {
-	return p.to.Out()
+	return p.target.Out()
 }
 
 func (p JoinedPipe) start() {
-	defer close(p.to.In())
-	for input := range p.from.Out() {
-		p.to.In() <- input
+	defer close(p.target.In())
+	for input := range p.source.Out() {
+		p.target.In() <- input
 	}
 }
