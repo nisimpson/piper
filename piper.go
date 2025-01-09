@@ -1,3 +1,8 @@
+/*
+Piper is a Go library that enables the creation of composable data pipelines using Go channels.
+It provides a set of primitives for building concurrent data processing pipelines with operations
+like map, filter, reduce, fan-out, and fan-in.
+*/
 package piper
 
 // Inlet represents a component that can receive data through a channel.
