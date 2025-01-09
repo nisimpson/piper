@@ -68,7 +68,7 @@ func mapToGetItemInput[In any](mapfn MapGetFunction[In]) piper.Pipe {
 //  3. Filtering out any error results
 func Get[In any](g Getter, ctx context.Context, mapfn MapGetFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
-	return piper.Join(
+	return pipeline.Join(
 		mapToGetItemInput(mapfn), // convert input data into get request
 		sendGet(g, ctx, options), // send dynamodb get
 		dropIfNil(),              // if result is nil, do not pass it along

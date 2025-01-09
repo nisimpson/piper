@@ -70,7 +70,7 @@ func mapToUpdateItemInput[In any](mapfn MapUpdateFunction[In]) piper.Pipe {
 //  4. Sending [dynamodb.UpdateItemOutput] results downstream
 func Update[In any](u Updater, ctx context.Context, mapfn MapUpdateFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
-	return piper.Join(
+	return pipeline.Join(
 		mapToUpdateItemInput(mapfn), // convert input data into update request
 		sendUpdate(u, ctx, options), // send dynamodb update
 		dropIfNil(),                 // if result is nil, do not pass it along

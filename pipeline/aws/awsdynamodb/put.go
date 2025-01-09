@@ -48,7 +48,7 @@ func sendPut(p Putter, ctx context.Context, opts *Options) piper.Pipe {
 //  4. Sending successful [dynamodb.PutItemOutput] results downstream
 func Put[In any](p Putter, ctx context.Context, mapfn MapPutFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
-	return piper.Join(
+	return pipeline.Join(
 		mapToPut(mapfn),          // convert the incoming data to a put item request
 		sendPut(p, ctx, options), // send the put item request
 		dropIfNil(),              // don't pass along any errors

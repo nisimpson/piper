@@ -70,7 +70,7 @@ func mapToScanInput[In any](mapfn MapScanFunction[In]) piper.Pipe {
 //  4. Sending [dynamodb.ScanOutput] results downstream
 func Scan[In any](s Scanner, ctx context.Context, mapfn MapScanFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
-	return piper.Join(
+	return pipeline.Join(
 		mapToScanInput(mapfn),     // convert input into scan request
 		sendScan(s, ctx, options), // send scan request
 		dropIfNil(),               // do not pass nil results along
