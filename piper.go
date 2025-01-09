@@ -1,7 +1,27 @@
 /*
-Piper is a Go library that enables the creation of composable data pipelines using Go channels.
-It provides a set of primitives for building concurrent data processing pipelines with operations
-like map, filter, reduce, fan-out, and fan-in.
+Package piper provides a data pipeline framework for Go applications.
+It enables the construction of flexible data processing pipelines with support
+for operations like mapping, filtering, fan-out, and fan-in patterns.
+
+Build data processing workflows by connecting various components:
+  - A [Source] to generate or provide input data
+  - A [Pipe] to transform, filter, or process data
+  - A [Sink] to consume or store the final results
+
+Key features include:
+  - Type-safe(ish) pipeline operations using Go generics
+  - Concurrent processing using Go channels
+  - Composable pipeline components that can be chained together
+  - Built-in support for common operations like map, filter, reduce
+  - Fan-out/fan-in capabilities for splitting and merging data streams
+
+[Pipeline] construction follows a fluent builder pattern:
+ 1. Start with the [PipelineFrom] constructor to specify a data source
+ 2. Add processing steps with [Pipeline.Thru] to transform data
+ 3. Complete with [Pipeline.To] to specify where results should be delivered
+
+Piper leverages Go's concurrency primitives to ensure efficient parallel processing while maintaining
+data ordering guarantees.
 */
 package piper
 
