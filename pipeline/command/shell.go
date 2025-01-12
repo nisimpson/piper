@@ -75,12 +75,16 @@ func (s shellCommands) executeAll(input string) (out string, exitcode int, err e
 	}
 
 	// last command's output
-	cur.Stdout = &outbuf
+	stdout := must.Return(cur.StdoutPipe())
 
 	// execute commands in reverse
 	for i := len(s) - 1; i >= 0; i-- {
 		must.PanicOnError(s[i].Start())
 	}
+
+	go func() {
+		must.Return(io.Copy(&outbuf, stdout))
+	}()
 
 	// wait for all of the commands to finish
 	for _, cmd := range s {
