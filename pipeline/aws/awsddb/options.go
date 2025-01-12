@@ -1,4 +1,4 @@
-package awsdynamodb
+package awsddb
 
 import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"

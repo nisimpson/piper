@@ -1,4 +1,4 @@
-package awsdynamodb
+package awsddb
 
 import (
 	"context"

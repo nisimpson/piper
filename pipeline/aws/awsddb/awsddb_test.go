@@ -1,4 +1,4 @@
-package awsdynamodb_test
+package awsddb_test
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/nisimpson/piper/pipeline"
-	"github.com/nisimpson/piper/pipeline/aws/awsdynamodb"
+	"github.com/nisimpson/piper/pipeline/aws/awsddb"
 )
 
 type MockDynamoDB struct {
@@ -66,7 +66,7 @@ func TestScan(t *testing.T) {
 	t.Run("scan source", func(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{}
-			source = awsdynamodb.FromScan(ddb, context.TODO(), &dynamodb.ScanInput{})
+			source = awsddb.FromScan(ddb, context.TODO(), &dynamodb.ScanInput{})
 			sink   = pipeline.ToSlice[*dynamodb.ScanOutput]()
 			want   = []*dynamodb.ScanOutput{{}}
 		)
@@ -83,7 +83,7 @@ func TestScan(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Scan(
+			pipe   = awsddb.Scan(
 				ddb,
 				context.TODO(),
 				ddb.mapScan,
@@ -104,7 +104,7 @@ func TestScan(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{outerr: errors.New("failed")}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Scan(
+			pipe   = awsddb.Scan(
 				ddb,
 				context.TODO(),
 				ddb.mapScan,
@@ -125,7 +125,7 @@ func TestQuery(t *testing.T) {
 	t.Run("query source", func(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{}
-			source = awsdynamodb.FromQuery(ddb, context.TODO(), &dynamodb.QueryInput{})
+			source = awsddb.FromQuery(ddb, context.TODO(), &dynamodb.QueryInput{})
 			sink   = pipeline.ToSlice[*dynamodb.QueryOutput]()
 			want   = []*dynamodb.QueryOutput{{}}
 		)
@@ -142,7 +142,7 @@ func TestQuery(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Query(
+			pipe   = awsddb.Query(
 				ddb,
 				context.TODO(),
 				ddb.mapQuery,
@@ -163,7 +163,7 @@ func TestQuery(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{outerr: errors.New("failed")}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Query(
+			pipe   = awsddb.Query(
 				ddb,
 				context.TODO(),
 				ddb.mapQuery,
@@ -185,7 +185,7 @@ func TestDelete(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Delete(
+			pipe   = awsddb.Delete(
 				ddb,
 				context.TODO(),
 				ddb.mapDelete,
@@ -206,7 +206,7 @@ func TestDelete(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{outerr: errors.New("failed")}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Delete(
+			pipe   = awsddb.Delete(
 				ddb,
 				context.TODO(),
 				ddb.mapDelete,
@@ -227,7 +227,7 @@ func TestUpdate(t *testing.T) {
 	t.Run("updates source", func(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{}
-			source = awsdynamodb.FromUpdate(ddb, context.TODO(), &dynamodb.UpdateItemInput{})
+			source = awsddb.FromUpdate(ddb, context.TODO(), &dynamodb.UpdateItemInput{})
 			sink   = pipeline.ToSlice[*dynamodb.UpdateItemOutput]()
 			want   = []*dynamodb.UpdateItemOutput{{}}
 		)
@@ -244,7 +244,7 @@ func TestUpdate(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Update(
+			pipe   = awsddb.Update(
 				ddb,
 				context.TODO(),
 				ddb.mapUpdate,
@@ -265,7 +265,7 @@ func TestUpdate(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{outerr: errors.New("failed")}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Update(
+			pipe   = awsddb.Update(
 				ddb,
 				context.TODO(),
 				ddb.mapUpdate,
@@ -286,7 +286,7 @@ func TestGet(t *testing.T) {
 	t.Run("gets source", func(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{}
-			source = awsdynamodb.FromGet(ddb, context.TODO(), &dynamodb.GetItemInput{})
+			source = awsddb.FromGet(ddb, context.TODO(), &dynamodb.GetItemInput{})
 			sink   = pipeline.ToSlice[*dynamodb.GetItemOutput]()
 			want   = []*dynamodb.GetItemOutput{{}}
 		)
@@ -303,7 +303,7 @@ func TestGet(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Get(
+			pipe   = awsddb.Get(
 				ddb,
 				context.TODO(),
 				ddb.mapGet,
@@ -324,7 +324,7 @@ func TestGet(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{outerr: errors.New("failed")}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Get(
+			pipe   = awsddb.Get(
 				ddb,
 				context.TODO(),
 				ddb.mapGet,
@@ -346,11 +346,11 @@ func TestPut(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Put(
+			pipe   = awsddb.Put(
 				ddb,
 				context.TODO(),
 				ddb.mapPut,
-				func(o *awsdynamodb.Options) {},
+				func(o *awsddb.Options) {},
 			)
 			sink = pipeline.ToSlice[*dynamodb.PutItemOutput]()
 			want = []*dynamodb.PutItemOutput{{}}
@@ -368,7 +368,7 @@ func TestPut(t *testing.T) {
 		var (
 			ddb    = MockDynamoDB{outerr: errors.New("failed")}
 			source = pipeline.FromSlice("foo")
-			pipe   = awsdynamodb.Put(
+			pipe   = awsddb.Put(
 				ddb,
 				context.TODO(),
 				ddb.mapPut,
