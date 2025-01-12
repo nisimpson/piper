@@ -38,8 +38,8 @@ func FromGet(g Getter, ctx context.Context, input *dynamodb.GetItemInput, opts .
 		in      = make(chan any, 1)
 
 		p = pipeline.FromChannel(in).Thru(
-			sendGet(g, ctx, options), // send dynamodb get
-			dropIfNil(),              // if result is nil, do not pass it along
+			sendGet(g, ctx, options),            // send dynamodb get
+			dropIfNil[dynamodb.GetItemOutput](), // if result is nil, do not pass it along
 		)
 	)
 
@@ -69,8 +69,8 @@ func mapToGetItemInput[In any](mapfn MapGetFunction[In]) piper.Pipe {
 func Get[In any](g Getter, ctx context.Context, mapfn MapGetFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
 	return pipeline.Join(
-		mapToGetItemInput(mapfn), // convert input data into get request
-		sendGet(g, ctx, options), // send dynamodb get
-		dropIfNil(),              // if result is nil, do not pass it along
+		mapToGetItemInput(mapfn),            // convert input data into get request
+		sendGet(g, ctx, options),            // send dynamodb get
+		dropIfNil[dynamodb.GetItemOutput](), // if result is nil, do not pass it along
 	)
 }

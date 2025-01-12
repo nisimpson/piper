@@ -39,8 +39,8 @@ func FromQuery(q Querier, ctx context.Context, input *dynamodb.QueryInput, opts 
 		in      = make(chan any, 1)
 
 		p = pipeline.FromChannel(in).Thru(
-			sendQuery(q, ctx, options), // send dynamodb query
-			dropIfNil(),                // if result is nil, do not pass it along
+			sendQuery(q, ctx, options),        // send dynamodb query
+			dropIfNil[dynamodb.QueryOutput](), // if result is nil, do not pass it along
 		)
 	)
 
@@ -71,8 +71,8 @@ func mapToQueryInput[In any](mapfn MapQueryFunction[In]) piper.Pipe {
 func Query[In any](q Querier, ctx context.Context, mapfn MapQueryFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
 	return pipeline.Join(
-		mapToQueryInput(mapfn),     // convert input data into query request
-		sendQuery(q, ctx, options), // send dynamodb query
-		dropIfNil(),                // if result is nil, do not pass it along
+		mapToQueryInput(mapfn),            // convert input data into query request
+		sendQuery(q, ctx, options),        // send dynamodb query
+		dropIfNil[dynamodb.QueryOutput](), // if result is nil, do not pass it along
 	)
 }

@@ -48,8 +48,8 @@ func sendDelete(d Deleter, ctx context.Context, opts *Options) piper.Pipe {
 func Delete[In any](d Deleter, ctx context.Context, mapfn MapDeleteFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
 	return pipeline.Join(
-		mapToDeleteInput(mapfn),     // convert the incoming data to a delete item request
-		sendDelete(d, ctx, options), // send the put item request
-		dropIfNil(),                 // don't pass along any errors
+		mapToDeleteInput(mapfn),                // convert the incoming data to a delete item request
+		sendDelete(d, ctx, options),            // send the put item request
+		dropIfNil[dynamodb.DeleteItemOutput](), // don't pass along any errors
 	)
 }

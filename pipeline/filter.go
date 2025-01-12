@@ -38,7 +38,10 @@ func KeepIf[In any](fn FilterFunction[In]) piper.Pipe {
 // DropIf creates a [Filter] that drops items matching the condition and keeps everything else.
 // It inverts the behavior of the provided [FilterFunction].
 func DropIf[In any](fn FilterFunction[In]) piper.Pipe {
-	return Filter(func(in In) bool { return !fn(in) })
+	return Filter(func(in In) bool {
+		test := fn(in)
+		return !test
+	})
 }
 
 func (f filterPipe[In]) In() chan<- any  { return f.in }
@@ -48,7 +51,8 @@ func (f filterPipe[In]) Out() <-chan any { return f.out }
 func (f filterPipe[In]) start() {
 	defer close(f.out)
 	for input := range f.in {
-		if !f.filterFunc(input.(In)) {
+		test := f.filterFunc(input.(In))
+		if !test {
 			// drop and do not pass downstream
 			continue
 		}

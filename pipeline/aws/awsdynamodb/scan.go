@@ -39,8 +39,8 @@ func FromScan(s Scanner, ctx context.Context, input *dynamodb.ScanInput, opts ..
 		in      = make(chan any, 1)
 
 		p = pipeline.FromChannel(in).Thru(
-			sendScan(s, ctx, options), // send dynamodb scan
-			dropIfNil(),               // if result is nil, do not pass it along
+			sendScan(s, ctx, options),        // send dynamodb scan
+			dropIfNil[dynamodb.ScanOutput](), // if result is nil, do not pass it along
 		)
 	)
 
@@ -71,8 +71,8 @@ func mapToScanInput[In any](mapfn MapScanFunction[In]) piper.Pipe {
 func Scan[In any](s Scanner, ctx context.Context, mapfn MapScanFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
 	return pipeline.Join(
-		mapToScanInput(mapfn),     // convert input into scan request
-		sendScan(s, ctx, options), // send scan request
-		dropIfNil(),               // do not pass nil results along
+		mapToScanInput(mapfn),            // convert input into scan request
+		sendScan(s, ctx, options),        // send scan request
+		dropIfNil[dynamodb.ScanOutput](), // do not pass nil results along
 	)
 }

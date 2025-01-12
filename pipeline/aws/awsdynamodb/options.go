@@ -48,8 +48,8 @@ func (o *Options) apply(opts []func(*Options)) *Options {
 // empty responses from the processing chain.
 //
 // Returns a pipe that drops nil values from the pipeline
-func dropIfNil() piper.Pipe {
-	return pipeline.DropIf(func(in any) bool {
+func dropIfNil[In any]() piper.Pipe {
+	return pipeline.DropIf(func(in *In) bool {
 		return in == nil
 	})
 }

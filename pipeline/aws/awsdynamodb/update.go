@@ -39,8 +39,8 @@ func FromUpdate(u Updater, ctx context.Context, input *dynamodb.UpdateItemInput,
 		in      = make(chan any, 1)
 
 		p = pipeline.FromChannel(in).Thru(
-			sendUpdate(u, ctx, options), // send dynamodb update
-			dropIfNil(),                 // if result is nil, do not pass it along
+			sendUpdate(u, ctx, options),            // send dynamodb update
+			dropIfNil[dynamodb.UpdateItemOutput](), // if result is nil, do not pass it along
 		)
 	)
 
@@ -71,8 +71,8 @@ func mapToUpdateItemInput[In any](mapfn MapUpdateFunction[In]) piper.Pipe {
 func Update[In any](u Updater, ctx context.Context, mapfn MapUpdateFunction[In], opts ...func(*Options)) piper.Pipe {
 	options := newClientOptions().apply(opts)
 	return pipeline.Join(
-		mapToUpdateItemInput(mapfn), // convert input data into update request
-		sendUpdate(u, ctx, options), // send dynamodb update
-		dropIfNil(),                 // if result is nil, do not pass it along
+		mapToUpdateItemInput(mapfn),            // convert input data into update request
+		sendUpdate(u, ctx, options),            // send dynamodb update
+		dropIfNil[dynamodb.UpdateItemOutput](), // if result is nil, do not pass it along
 	)
 }
