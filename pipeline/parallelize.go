@@ -82,7 +82,8 @@ func (p parallelizer) work(pipe piper.Pipe, wg *sync.WaitGroup) {
 	defer wg.Done()
 	defer close(pipe.In())
 	for input := range p.in {
-		pipe.In() <- input  // process upstream input
-		p.out <- pipe.Out() // send output downstream
+		pipe.In() <- input     // process upstream input
+		output := <-pipe.Out() // get output
+		p.out <- output        // send output downstream
 	}
 }
