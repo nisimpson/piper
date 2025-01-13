@@ -15,11 +15,6 @@ Key features include:
   - Built-in support for common operations like map, filter, reduce
   - Fan-out/fan-in capabilities for splitting and merging data streams
 
-[Pipeline] construction follows a fluent builder pattern:
- 1. Start with the [PipelineFrom] constructor to specify a data source
- 2. Add processing steps with [Pipeline.Thru] to transform data
- 3. Complete with [Pipeline.To] to specify where results should be delivered
-
 Piper leverages Go's concurrency primitives to ensure efficient parallel processing while maintaining
 data ordering guarantees.
 */

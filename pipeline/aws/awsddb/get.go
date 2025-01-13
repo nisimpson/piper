@@ -27,12 +27,12 @@ func sendGet(g Getter, ctx context.Context, opts *Options) piper.Pipe {
 	})
 }
 
-// FromGet creates a [piper.Pipeline] that processes a single DynamoDB GetItem operation.
+// FromGet creates a [pipeline.Flow] that processes a single DynamoDB GetItem operation.
 //  1. Takes a single GetItemInput
 //  2. Executes the get operation
 //  3. Filters out any error results
 //  4. Passes successful results downstream
-func FromGet(g Getter, ctx context.Context, input *dynamodb.GetItemInput, opts ...func(*Options)) piper.Pipeline {
+func FromGet(g Getter, ctx context.Context, input *dynamodb.GetItemInput, opts ...func(*Options)) pipeline.Flow {
 	var (
 		options = newClientOptions().apply(opts)
 		in      = make(chan any, 1)

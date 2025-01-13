@@ -27,13 +27,13 @@ func sendQuery(q Querier, ctx context.Context, opts *Options) piper.Pipe {
 	})
 }
 
-// FromQuery creates a [piper.Pipeline] that processes a single DynamoDB Query operation.
+// FromQuery creates a [pipeline.Flow] that processes a single DynamoDB Query operation.
 // It sets up a pipeline that:
 //  1. Takes a single QueryInput
 //  2. Executes the query operation
 //  3. Filters out any error results
 //  4. Sends [dynamodb.QueryOutput] items downstream
-func FromQuery(q Querier, ctx context.Context, input *dynamodb.QueryInput, opts ...func(*Options)) piper.Pipeline {
+func FromQuery(q Querier, ctx context.Context, input *dynamodb.QueryInput, opts ...func(*Options)) pipeline.Flow {
 	var (
 		options = newClientOptions().apply(opts)
 		in      = make(chan any, 1)

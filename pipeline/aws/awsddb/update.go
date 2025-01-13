@@ -27,13 +27,13 @@ func sendUpdate(u Updater, ctx context.Context, opts *Options) piper.Pipe {
 	})
 }
 
-// FromUpdate creates a [piper.Pipeline] that processes a single DynamoDB Update operation.
+// FromUpdate creates a [pipeline.Flow] that processes a single DynamoDB Update operation.
 // It sets up a pipeline that:
 //  1. Takes a single UpdateItemInput
 //  2. Executes the update operation
 //  3. Filters out any error results
 //  4. Sends [dynamodb.UpdateItemOutput] items downstream
-func FromUpdate(u Updater, ctx context.Context, input *dynamodb.UpdateItemInput, opts ...func(*Options)) piper.Pipeline {
+func FromUpdate(u Updater, ctx context.Context, input *dynamodb.UpdateItemInput, opts ...func(*Options)) pipeline.Flow {
 	var (
 		options = newClientOptions().apply(opts)
 		in      = make(chan any, 1)

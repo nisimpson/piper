@@ -2,8 +2,6 @@ package pipeline
 
 import (
 	"sync"
-
-	"github.com/nisimpson/piper"
 )
 
 // source represents a pipeline source that sends items from a slice.
@@ -12,9 +10,9 @@ type source struct {
 	out chan any
 }
 
-// FromSlice creates a new [piper.Pipeline] that starts with the provided slice items.
+// FromSlice creates a new [Flow] that starts with the provided slice items.
 // Items are sent one at a time through the pipeline in the order they appear in the slice.
-func FromSlice[In any](items ...In) piper.Pipeline {
+func FromSlice[In any](items ...In) Flow {
 	source := source{
 		out: make(chan any, len(items)),
 	}
@@ -22,7 +20,7 @@ func FromSlice[In any](items ...In) piper.Pipeline {
 		source.out <- item
 	}
 	close(source.out)
-	return piper.PipelineFrom(source)
+	return From(source)
 }
 
 func (s source) Out() <-chan any { return s.out }

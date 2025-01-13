@@ -11,15 +11,15 @@ type channelSource[T any] struct {
 	out chan any
 }
 
-// FromChannel creates a new [piper.Pipeline] from a typed channel.
+// FromChannel creates a new [Flow] from a typed channel.
 // It allows existing channel-based code to be used as the input for a pipeline.
-func FromChannel[T any](ch <-chan T) piper.Pipeline {
+func FromChannel[T any](ch <-chan T) Flow {
 	source := channelSource[T]{
 		in:  ch,
 		out: make(chan any),
 	}
 	go source.start()
-	return piper.PipelineFrom(source)
+	return From(source)
 }
 
 func (c channelSource[T]) Out() <-chan any { return c.out }

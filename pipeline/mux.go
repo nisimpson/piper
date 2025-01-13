@@ -15,15 +15,15 @@ type muxer struct {
 	sources []piper.Source
 }
 
-// Mux creates a new [piper.Pipeline] that reads from multiple sources simultaneously.
+// Mux creates a new [Flow] that reads from multiple sources simultaneously.
 // Data from all sources is interleaved into a single source stream.
-func Mux(sources ...piper.Source) piper.Pipeline {
+func Mux(sources ...piper.Source) Flow {
 	fanin := muxer{
 		out: make(chan any),
 	}
 	fanin.sources = append(fanin.sources, sources...)
 	go fanin.start()
-	return piper.PipelineFrom(fanin)
+	return From(fanin)
 }
 
 // Out returns the channel containing the combined output from all sources.

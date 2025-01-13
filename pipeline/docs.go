@@ -18,7 +18,9 @@ Key features:
   - Built-in error handling and propagation
   - Support for both synchronous and asynchronous processing
 
-The package is designed to work seamlessly with the parent piper framework,
-enabling the construction of efficient and maintainable data processing workflows.
+Pipeline construction follows a fluent builder pattern:
+ 1. Start with the [From] constructor to create a new [Flow]
+ 2. Add processing steps with [Flow.Thru] to transform data
+ 3. Complete with [Flow.To] to specify where results should be delivered
 */
 package pipeline

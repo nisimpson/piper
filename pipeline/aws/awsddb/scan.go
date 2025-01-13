@@ -27,13 +27,13 @@ func sendScan(s Scanner, ctx context.Context, opts *Options) piper.Pipe {
 	})
 }
 
-// FromScan creates a [piper.Pipeline] that processes a single DynamoDB Scan operation.
+// FromScan creates a [pipeline.Flow] that processes a single DynamoDB Scan operation.
 // It sets up a pipeline that:
 //  1. Takes a single ScanInput
 //  2. Executes the scan operation
 //  3. Filters out any error results
 //  4. Sends [dynamodb.ScanOutput] items downstream
-func FromScan(s Scanner, ctx context.Context, input *dynamodb.ScanInput, opts ...func(*Options)) piper.Pipeline {
+func FromScan(s Scanner, ctx context.Context, input *dynamodb.ScanInput, opts ...func(*Options)) pipeline.Flow {
 	var (
 		options = newClientOptions().apply(opts)
 		in      = make(chan any, 1)

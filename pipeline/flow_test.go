@@ -1,17 +1,19 @@
-package piper_test
+package pipeline_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/nisimpson/piper"
 	"github.com/nisimpson/piper/pipeline"
 )
 
-func TestPipeline(t *testing.T) {
+func TestFlow(t *testing.T) {
+	t.Parallel()
+
 	t.Run("source to sink", func(t *testing.T) {
 		sink := pipeline.ToSlice[int]()
-		piper.PipelineFrom(pipeline.FromSlice(1, 2, 3, 4)).To(sink)
+		source := pipeline.FromSlice(1, 2, 3, 4)
+		pipeline.From(source).To(sink)
 		want := []int{1, 2, 3, 4}
 		got := sink.Slice()
 		if !reflect.DeepEqual(got, want) {
@@ -21,7 +23,7 @@ func TestPipeline(t *testing.T) {
 
 	t.Run("source then action to sink", func(t *testing.T) {
 		var (
-			source = piper.PipelineFrom(pipeline.FromSlice(1, 2, 3, 4))
+			source = pipeline.From(pipeline.FromSlice(1, 2, 3, 4))
 			action = pipeline.Map(func(i int) int { return i * 2 })
 			sink   = pipeline.ToSlice[int]()
 		)
@@ -42,7 +44,7 @@ func TestPipeline(t *testing.T) {
 		var (
 			sink1        = pipeline.ToSlice[int]()
 			sink2        = pipeline.ToSlice[int]()
-			pipe1, pipe2 = piper.PipelineFrom(pipeline.FromSlice(1, 2, 3, 4)).Tee(
+			pipe1, pipe2 = pipeline.From(pipeline.FromSlice(1, 2, 3, 4)).Tee(
 				pipeline.Passthrough(),
 				pipeline.Passthrough(),
 			)
