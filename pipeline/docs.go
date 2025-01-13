@@ -19,8 +19,8 @@ Key features:
   - Support for both synchronous and asynchronous processing
 
 Pipeline construction follows a fluent builder pattern:
- 1. Start with the [From] constructor to create a new [Flow]
- 2. Add processing steps with [Flow.Thru] to transform data
- 3. Complete with [Flow.To] to specify where results should be delivered
+ 1. Start with the [From] constructor to create a new [Flow].
+ 2. Add processing steps with [Flow.Thru] to transform data.
+ 3. Complete with [Flow.To] to specify where results should be delivered.
 */
 package pipeline
