@@ -7,8 +7,8 @@ import "github.com/nisimpson/piper"
 type DemuxKeyFunction[T any] func(T) string
 
 // DemuxPipelineFunction represents a function that constructs a pipeline segment for a fork branch.
-// It takes a [piper.Source] and returns a [piper.Pipeline] that will process items sent to that branch.
-type DemuxPipelineFunction = func(source piper.Source) piper.Pipeline
+// It takes a [piper.Source] and returns a [Flow] that will process items sent to that branch.
+type DemuxPipelineFunction = func(source piper.Source) Flow
 
 // demuxer implements a pipeline sink that distributes incoming items to multiple branches
 // based on a key function. Each branch can have its own processing pipeline.
@@ -25,7 +25,7 @@ type demuxer[In any] struct {
 	channels map[string]chan In
 }
 
-// Demux creates a fan-out [piper.Sink] that distributes items to multiple [piper.Pipeline] branches.
+// Demux creates a fan-out [piper.Sink] that distributes items to multiple [Flow] branches.
 // The [DemuxKeyFunction] keyfn determines which branch receives each item, and [DemuxPipelineFunction] generators
 // provide the processing pipeline for each branch.
 func Demux[In any](keyfn DemuxKeyFunction[In], generators map[string]DemuxPipelineFunction) demuxer[In] {

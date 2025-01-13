@@ -19,11 +19,11 @@ func TestDemux(t *testing.T) {
 	)
 
 	generators := map[string]pipeline.DemuxPipelineFunction{
-		"evens": func(s piper.Source) piper.Pipeline {
-			return piper.PipelineFrom(s).Thru(pipeline.Map(double))
+		"evens": func(s piper.Source) pipeline.Flow {
+			return pipeline.From(s).Thru(pipeline.Map(double))
 		},
-		"odds": func(s piper.Source) piper.Pipeline {
-			return piper.PipelineFrom(s).Thru(pipeline.Map(triple))
+		"odds": func(s piper.Source) pipeline.Flow {
+			return pipeline.From(s).Thru(pipeline.Map(triple))
 		},
 	}
 

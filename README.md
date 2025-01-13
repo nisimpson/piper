@@ -31,6 +31,10 @@ go get github.com/nisimpson/piper
 ### Basic Pipeline with Map Operation
 
 ```go
+import (
+    "github.com/nisimpson/piper/pipeline"
+)
+
 // Create a pipeline that doubles numbers
 source := pipeline.FromSlice(1, 2, 3, 4)
 double := func(in int) int { return in * 2 }
@@ -77,14 +81,14 @@ keyFn := func(n int) string {
     return "odd"
 }
 
-generators := map[string]pipeline.FanOutPipelineFunction{
-    "even": func(s piper.Source) piper.Pipeline {
+generators := map[string]pipeline.DemuxPipelineFunction{
+    "even": func(s piper.Source) pipeline.Flow {
         // process even numbers separately
-        return piper.PipelineFrom(s)
+        return pipeline.From(s)
     },
-    "odd":  func(s piper.Source) piper.Pipeline {
+    "odd":  func(s piper.Source) pipeline.Flow {
         // process odd numbers separately
-        return piper.PipelineFrom(s)
+        return pipeline.From(s)
     },
 }
 
@@ -96,6 +100,7 @@ source = pipeline.Mux(fanout.Sources()...)
 ```
 
 ### Fan-In Example
+
 ```go
 // Create two sources
 source1 := pipeline.FromSlice(1, 2, 3)
@@ -106,6 +111,7 @@ combined := pipeline.Mux(source1, source2)
 ```
 
 ### Reduce Example
+
 ```go
 // Sum all numbers in a pipeline
 sum := func(acc, item int) int { return acc + item }

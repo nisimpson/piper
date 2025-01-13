@@ -42,10 +42,10 @@ type httpPipe struct {
 	out chan any
 }
 
-// FromHTTP creates a new [piper.Pipeline] that starts by making an HTTP request.
+// FromHTTP creates a new [Flow] that starts by making an HTTP request.
 // The provided body is used for the initial request, and the response becomes the first pipeline item.
 // Provide [HttpPipeOptions] to configure the default behavior.
-func FromHTTP(method string, url string, body io.Reader, opts ...func(*HttpPipeOptions)) piper.Pipeline {
+func FromHTTP(method string, url string, body io.Reader, opts ...func(*HttpPipeOptions)) Flow {
 	source := httpPipe{
 		url:     url,
 		method:  method,
@@ -63,7 +63,7 @@ func FromHTTP(method string, url string, body io.Reader, opts ...func(*HttpPipeO
 	close(source.in)
 
 	go source.start()
-	return piper.PipelineFrom(source)
+	return From(source)
 }
 
 // SendHTTP creates a [piper.Pipe] component that sends each upstream item as an HTTP request.

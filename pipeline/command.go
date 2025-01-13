@@ -14,7 +14,7 @@ type CommandPipeOptions[Out any] struct {
 	HandleOutput func(out Out, exitcode int) Out
 }
 
-// Command represents an executable operation that can be run in a [piper.Pipeline].
+// Command represents an executable operation that can be run in a [Flow].
 // The generic type In represents the type of input the command accepts.
 type Command[In any, Out any] interface {
 	// Execute runs the command with the given input and returns its output, exit code, and any error.
@@ -47,10 +47,10 @@ type executor[In any, Out any] struct {
 	options []func(*CommandPipeOptions[Out])
 }
 
-// FromCmd creates a new [piper.Pipeline] that starts with command execution.
+// FromCmd creates a new [Flow] that starts with command execution.
 // The command will be executed once with an empty input, making it suitable for commands
 // that don't require input (like 'ls' or 'date').
-func FromCmd[In any, Out any](cmd Command[In, Out], opts ...func(*CommandPipeOptions[Out])) piper.Pipeline {
+func FromCmd[In any, Out any](cmd Command[In, Out], opts ...func(*CommandPipeOptions[Out])) Flow {
 	source := executor[In, Out]{
 		cmd:     cmd,
 		in:      make(chan any, 1),
@@ -62,7 +62,7 @@ func FromCmd[In any, Out any](cmd Command[In, Out], opts ...func(*CommandPipeOpt
 	close(source.in)
 
 	go source.start()
-	return piper.PipelineFrom(source)
+	return From(source)
 }
 
 // ExecCmd creates a [piper.Pipe] component that executes a command for each input it receives.

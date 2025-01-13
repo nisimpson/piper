@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/nisimpson/piper"
+	"github.com/nisimpson/piper/pipeline"
 )
 
 type Fixture[In any] struct {
@@ -25,12 +26,12 @@ func NewFixture[In any]() *Fixture[In] {
 
 func Consume[In any](s piper.Source) []In {
 	f := NewFixture[In]()
-	return f.consume(piper.PipelineFrom(s))
+	return f.consume(pipeline.From(s))
 }
 
 func (s *Fixture[In]) In() chan<- any { return s.in }
 
-func (s *Fixture[In]) consume(pipeline piper.Pipeline) []In {
+func (s *Fixture[In]) consume(pipeline pipeline.Flow) []In {
 	pipeline.To(s)
 	s.wg.Wait()
 	return s.items
