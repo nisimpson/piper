@@ -1,6 +1,7 @@
 package command_test
 
 import (
+	"os"
 	"os/exec"
 	"reflect"
 	"testing"
@@ -9,7 +10,20 @@ import (
 	"github.com/nisimpson/piper/pipeline/command"
 )
 
+var (
+	skipShellTests = false
+)
+
+func TestMain(m *testing.M) {
+	skipShellTests = os.Getenv("SKIP_SHELL_TESTS") != ""
+	m.Run()
+}
+
 func TestShell(t *testing.T) {
+	if skipShellTests {
+		t.Skip("skipping shell tests")
+	}
+
 	t.Parallel()
 
 	t.Run("nothing to do", func(t *testing.T) {
@@ -80,7 +94,7 @@ func TestShell(t *testing.T) {
 		var (
 			commands = command.Shell(
 				exec.Command("echo", "hello world"),
-				exec.Command("false"),
+				exec.Command("wc", "-z"),
 			)
 			source = pipeline.FromCmd(commands)
 			sink   = pipeline.ToSlice[string]()
@@ -122,6 +136,10 @@ func TestShell(t *testing.T) {
 }
 
 func TestShellCommandsAsPipe(t *testing.T) {
+	if skipShellTests {
+		t.Skip("skipping shell tests")
+	}
+
 	t.Parallel()
 
 	t.Run("single command", func(t *testing.T) {
