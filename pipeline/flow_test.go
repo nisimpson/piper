@@ -1,6 +1,7 @@
 package pipeline_test
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -18,6 +19,26 @@ func TestFlow(t *testing.T) {
 		got := sink.Slice()
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v, want %v", got, want)
+		}
+	})
+
+	t.Run("cancel transmission with context", func(t *testing.T) {
+		var (
+			source = pipeline.FromSlice(1, 2, 3, 4)
+			action = pipeline.Map(func(i int) int { return i * 2 })
+			sink   = pipeline.ToSlice[int]()
+		)
+
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		source.WithContext(ctx).Thru(action).To(sink)
+
+		var (
+			got = sink.Slice()
+		)
+
+		if len(got) == 4 {
+			t.Errorf("got %v", got)
 		}
 	})
 
@@ -64,6 +85,37 @@ func TestFlow(t *testing.T) {
 		}
 		if !reflect.DeepEqual(got2, want) {
 			t.Errorf("got %v, want %v", got2, want)
+		}
+	})
+
+	t.Run("cancel tee", func(t *testing.T) {
+		var (
+			sink1        = pipeline.ToSlice[int]()
+			sink2        = pipeline.ToSlice[int]()
+			ctx, cancel  = context.WithCancel(context.Background())
+			pipe1, pipe2 = pipeline.
+					FromSlice(1, 2, 3, 4).
+					WithContext(ctx).
+					Tee(
+					pipeline.Passthrough(),
+					pipeline.Passthrough(),
+				)
+		)
+
+		cancel()
+		pipe1.To(sink1)
+		pipe2.To(sink2)
+
+		var (
+			got1 = sink1.Slice()
+			got2 = sink2.Slice()
+		)
+
+		if len(got1) == 4 {
+			t.Errorf("got %v", got1)
+		}
+		if len(got2) == 4 {
+			t.Errorf("got %v", got2)
 		}
 	})
 }
