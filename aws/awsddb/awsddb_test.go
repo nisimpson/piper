@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/nisimpson/piper/aws/awsddb"
 	"github.com/nisimpson/piper/pipeline"
-	"github.com/nisimpson/piper/pipeline/aws/awsddb"
 )
 
 type MockDynamoDB struct {

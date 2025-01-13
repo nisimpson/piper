@@ -1,4 +1,4 @@
-module github.com/nisimpson/piper/pipeline/aws
+module github.com/nisimpson/piper/aws
 
 go 1.23.2
 
