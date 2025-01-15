@@ -62,7 +62,7 @@ push: lint
 
 .PHONY: publish-throttle
 publish-throttle:
-	git tag throttle/v0.0.1 || true
+	git tag -f throttle/v0.0.1
 	cd ./throttle
 	@GOPROXY=proxy.golang.org go list -m github.com/nisimpson/piper/throttle@throttle/v0.0.1
 	cd ../
