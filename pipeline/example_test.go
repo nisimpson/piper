@@ -906,3 +906,318 @@ func ExampleFromCmd_withError() {
 	// Output:
 	// Error: command failed
 }
+
+// ExampleTakeN demonstrates basic usage of TakeN to limit output
+func ExampleTakeN() {
+	// Create a pipeline that takes only the first 3 items
+	pipe := pipeline.TakeN(3)
+
+	// Send input
+	in := pipe.In()
+	go func() {
+		for i := 1; i <= 5; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	// Receive limited output
+	for val := range pipe.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+	// 1
+	// 2
+	// 3
+}
+
+// ExampleTakeN_zero demonstrates behavior when taking zero items
+func ExampleTakeN_zero() {
+	// Create a pipeline that takes no items
+	pipe := pipeline.TakeN(0)
+
+	// Send input
+	in := pipe.In()
+	go func() {
+		for i := 1; i <= 3; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	// Receive output (should be empty)
+	for val := range pipe.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+}
+
+// ExampleTakeN_negative demonstrates behavior with negative count
+func ExampleTakeN_negative() {
+	// Create a pipeline that takes all items (negative count)
+	pipe := pipeline.TakeN(-1)
+
+	// Send input
+	in := pipe.In()
+	go func() {
+		for i := 1; i <= 3; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	// Receive all output
+	for val := range pipe.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+	// 1
+	// 2
+	// 3
+}
+
+// ExampleTakeN_fewerItems demonstrates behavior when input has fewer items than count
+func ExampleTakeN_fewerItems() {
+	// Create a pipeline that takes up to 5 items
+	pipe := pipeline.TakeN(5)
+
+	// Send fewer items than the limit
+	in := pipe.In()
+	go func() {
+		for i := 1; i <= 3; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	// Receive all available items
+	for val := range pipe.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+	// 1
+	// 2
+	// 3
+}
+
+// ExampleTakeN_composition demonstrates composing TakeN with other pipeline operations
+func ExampleTakeN_composition() {
+	// Create a source of numbers
+	source := pipeline.FromSlice(1, 2, 3, 4, 5)
+
+	// Create a pipeline that doubles numbers and takes first 3 results
+	result := source.Thru(
+		pipeline.Map(func(x any) any {
+			return x.(int) * 2
+		}),
+		pipeline.TakeN(3),
+	)
+
+	// Receive limited output
+	for val := range result.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+	// 2
+	// 4
+	// 6
+}
+
+// ExampleTakeN_strings demonstrates TakeN with string values
+func ExampleTakeN_strings() {
+	pipe := pipeline.TakeN(2)
+
+	// Send string input
+	in := pipe.In()
+	go func() {
+		words := []string{"apple", "banana", "cherry", "date"}
+		for _, word := range words {
+			in <- word
+		}
+		close(in)
+	}()
+
+	// Receive limited output
+	for val := range pipe.Out() {
+		fmt.Printf("%s\n", val)
+	}
+	// Output:
+	// apple
+	// banana
+}
+
+// ExampleDropN demonstrates basic usage of DropN to skip initial items
+func ExampleDropN() {
+	// Create a pipeline that drops the first 3 items
+	pipe := pipeline.DropN(3)
+
+	// Send input
+	in := pipe.In()
+	go func() {
+		for i := 1; i <= 5; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	// Receive remaining output
+	for val := range pipe.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+	// 4
+	// 5
+}
+
+// ExampleDropN_zero demonstrates behavior when dropping zero items
+func ExampleDropN_zero() {
+	// Create a pipeline that drops no items (passthrough)
+	pipe := pipeline.DropN(0)
+
+	// Send input
+	in := pipe.In()
+	go func() {
+		for i := 1; i <= 3; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	// Receive all output
+	for val := range pipe.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+	// 1
+	// 2
+	// 3
+}
+
+// ExampleDropN_negative demonstrates behavior with negative count
+func ExampleDropN_negative() {
+	// Create a pipeline that drops no items (negative count)
+	pipe := pipeline.DropN(-1)
+
+	// Send input
+	in := pipe.In()
+	go func() {
+		for i := 1; i <= 3; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	// Receive all output
+	for val := range pipe.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+	// 1
+	// 2
+	// 3
+}
+
+// ExampleDropN_moreItems demonstrates behavior when dropping more items than available
+func ExampleDropN_moreItems() {
+	// Create a pipeline that drops more items than input has
+	pipe := pipeline.DropN(5)
+
+	// Send fewer items than the drop count
+	in := pipe.In()
+	go func() {
+		for i := 1; i <= 3; i++ {
+			in <- i
+		}
+		close(in)
+	}()
+
+	// Receive output (should be empty)
+	for val := range pipe.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+}
+
+// ExampleDropN_strings demonstrates DropN with string values
+func ExampleDropN_strings() {
+	pipe := pipeline.DropN(2)
+
+	// Send string input
+	in := pipe.In()
+	go func() {
+		words := []string{"apple", "banana", "cherry", "date"}
+		for _, word := range words {
+			in <- word
+		}
+		close(in)
+	}()
+
+	// Receive remaining output
+	for val := range pipe.Out() {
+		fmt.Printf("%s\n", val)
+	}
+	// Output:
+	// cherry
+	// date
+}
+
+// ExampleDropN_composition demonstrates composing DropN with other pipeline operations
+func ExampleDropN_composition() {
+	// Create a source of numbers
+	source := pipeline.FromSlice(1, 2, 3, 4, 5)
+
+	// Create a pipeline that doubles numbers and drops first 2 results
+	result := source.
+		Thru(pipeline.Map(func(x any) any {
+			return x.(int) * 2
+		})).
+		Thru(pipeline.DropN(2))
+
+	// Receive remaining output
+	for val := range result.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+	// 6
+	// 8
+	// 10
+}
+
+// ExampleDropN_empty demonstrates behavior with empty input
+func ExampleDropN_empty() {
+	pipe := pipeline.DropN(3)
+
+	// Send no input
+	in := pipe.In()
+	close(in)
+
+	// Receive output (should be empty)
+	for val := range pipe.Out() {
+		fmt.Println(val)
+	}
+	// Output:
+}
+
+// ExampleDropN_mixedTypes demonstrates DropN with mixed value types
+func ExampleDropN_mixedTypes() {
+	pipe := pipeline.DropN(2)
+
+	// Send mixed type input
+	in := pipe.In()
+	go func() {
+		items := []any{1, "two", 3.0, true, "five"}
+		for _, item := range items {
+			in <- item
+		}
+		close(in)
+	}()
+
+	// Receive remaining output
+	for val := range pipe.Out() {
+		fmt.Printf("%v\n", val)
+	}
+	// Output:
+	// 3
+	// true
+	// five
+}
