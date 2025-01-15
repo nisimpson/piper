@@ -26,11 +26,16 @@ func FlatMap[In any, Out any](fn MapFunction[In, []Out]) piper.Pipe {
 }
 
 // Flatten creates a new [piper.Pipe] component that receives a batch of items and flattens it,
-// sending each item individually downstream. It is the semantic equivalent of:
+// sending each item from the upstream batch individually downstream.
+// It is the semantic equivalent of:
 //
 //	FlatMap(func(in []T) []T { return in })
-func Flatten[T any]() piper.Pipe {
-	return FlatMap(func(in []T) []T { return in })
+//
+// For example, to handle an upstream csv in indexed row order, call:
+//
+//	Flatten[[]string]() // [][]string - Flatten -> []string
+func Flatten[Out any, In []Out]() piper.Pipe {
+	return FlatMap(func(in In) []Out { return in })
 }
 
 func (f flatmapper[In, Out]) In() chan<- any  { return f.in }
