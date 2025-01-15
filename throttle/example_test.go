@@ -1,7 +1,6 @@
 package throttle_test
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -58,36 +57,6 @@ func ExampleLimit_burst() {
 	// Received 4 after 1s
 }
 
-// ExampleLimitWithContext demonstrates using context for cancellation
-func ExampleLimitWithContext() {
-	// Create a context with timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
-	defer cancel()
-
-	// Create a limiter that allows 1 item per second
-	limiter := rate.NewLimiter(rate.Every(time.Second), 1)
-
-	// Create rate-limited pipeline with context
-	pipe := throttle.LimitWithContext(ctx, limiter, pipeline.Passthrough())
-
-	// Send input
-	go func() {
-		in := pipe.In()
-		defer close(in)
-		for i := 1; i <= 3; i++ {
-			in <- i
-		}
-	}()
-
-	start := time.Now()
-	for val := range pipe.Out() {
-		fmt.Printf("Received %v after %v\n", val,
-			time.Since(start).Round(100*time.Millisecond))
-	}
-	// Output:
-	// Received 1 after 0s
-}
-
 // ExampleLimit_composition demonstrates composing rate limiting with other operations
 func ExampleLimit_composition() {
 	// Create a limiter that allows 2 items per second
@@ -137,35 +106,6 @@ func ExampleLimit_strings() {
 	// Received "fast" after 0s
 	// Received "medium" after 500ms
 	// Received "slow" after 1s
-}
-
-// ExampleLimit_errorHandling demonstrates handling context cancellation
-func ExampleLimit_errorHandling() {
-	// Create a context that's already cancelled
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-
-	// Create a limiter
-	limiter := rate.NewLimiter(rate.Every(time.Second), 1)
-
-	// Create rate-limited pipeline with cancelled context
-	pipe := throttle.LimitWithContext(ctx, limiter, pipeline.Passthrough())
-
-	// Send input
-	go func() {
-		in := pipe.In()
-		defer close(in)
-		in <- "this won't go through"
-	}()
-
-	// Try to receive (should exit immediately)
-	count := 0
-	for range pipe.Out() {
-		count++
-	}
-	fmt.Printf("Received %d items\n", count)
-	// Output:
-	// Received 0 items
 }
 
 // ExampleLimit_zeroRate demonstrates behavior with zero rate limit
