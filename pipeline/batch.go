@@ -121,3 +121,11 @@ func (b batcher[In]) newSlice() []In {
 	}
 	return make([]In, 0, b.options.MaxSize)
 }
+
+// BatchAll returns a [piper.Pipe] that collects all upstream items and sends them downstream as a slice.
+// It is the semantic equivalent to
+//
+//	BatchN[T](-1)
+func BatchAll[In any]() piper.Pipe {
+	return BatchN[In](-1)
+}

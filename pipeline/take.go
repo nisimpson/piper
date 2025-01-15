@@ -53,3 +53,48 @@ func (t taker) start() {
 		count--
 	}
 }
+
+// takeLast represents a pipeline stage that takes the last item
+// from the input stream and forwards them to the output stream.
+type takeLast struct {
+	in    chan any
+	out   chan any
+	count int
+}
+
+// TakeLastN returns a [piper.Pipe] that takes the last 'count' items upstream
+// and forwards it downstream, discarding the rest.
+func TakeLastN(count int) piper.Pipe {
+	pipe := takeLast{
+		in:    make(chan any),
+		out:   make(chan any),
+		count: count,
+	}
+	go pipe.start()
+	return pipe
+}
+
+// In returns the input channel for the taker stage.
+// This channel is used to receive items from the previous stage in the pipeline.
+func (t takeLast) In() chan<- any { return t.in }
+
+// Out returns the output channel for the taker stage.
+// This channel is used to send items to the next stage in the pipeline.
+func (t takeLast) Out() <-chan any { return t.out }
+
+func (t takeLast) start() {
+	defer close(t.out)
+	var last = make([]any, 0)
+	for i := range t.in {
+		last = append(last, i)
+	}
+	// if the count is less or equal to the length of the slice, then
+	// splice the slice.
+	if t.count <= len(last) {
+		last = last[len(last)-t.count:]
+	}
+	// send the last items
+	for _, i := range last {
+		t.out <- i
+	}
+}

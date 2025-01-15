@@ -25,6 +25,23 @@ func TestBatchN(t *testing.T) {
 	}
 }
 
+func TestBatchAll(t *testing.T) {
+	t.Parallel()
+
+	source := pipeline.
+		FromSlice(1, 2, 3, 4).
+		Thru(pipeline.BatchAll[int]())
+
+	var (
+		want = [][]int{{1, 2, 3, 4}}
+		got  = Consume[[]int](source)
+	)
+
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("wanted %#v, got %#v", want, got)
+	}
+}
+
 func TestBatchEvery(t *testing.T) {
 	t.Parallel()
 

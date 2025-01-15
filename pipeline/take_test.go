@@ -117,6 +117,26 @@ func TestTakeN(t *testing.T) {
 			t.Errorf("got %v, want %v", results, expected)
 		}
 	})
+
+	t.Run("take last", func(t *testing.T) {
+		// Create a pipeline that takes the last 3 items
+		input := []any{1, 2, 3, 4, 5}
+		expected := []any{3, 4, 5}
+
+		source := pipeline.FromSlice(input...)
+		result := source.Thru(pipeline.TakeLastN(3))
+
+		// Collect results
+		results := make([]any, 0)
+		for val := range result.Out() {
+			results = append(results, val)
+		}
+
+		// Verify results
+		if !reflect.DeepEqual(results, expected) {
+			t.Errorf("got %v, want %v", results, expected)
+		}
+	})
 }
 
 func BenchmarkTakeN(b *testing.B) {
