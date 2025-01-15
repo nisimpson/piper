@@ -59,3 +59,10 @@ lint: tidy audit no-dirty
 .PHONY: push
 push: lint
 	git push
+
+.PHONY: publish-throttle
+publish-throttle:
+	git tag throttle/v0.0.1 || true
+	cd ./throttle
+	@GOPROXY=proxy.golang.org go list -m github.com/nisimpson/piper/throttle@throttle/v0.0.1
+	cd ../

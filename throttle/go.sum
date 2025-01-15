@@ -1,4 +1,4 @@
-github.com/nisimpson/piper v0.0.0-20250107220201-027173a48de0 h1:ECDBtHArNU7YFAC0K0hGuZRfGNyjenrVVfvUqL/xu7E=
-github.com/nisimpson/piper v0.0.0-20250107220201-027173a48de0/go.mod h1:kUUPyzzCjb7i9lA0dwu/htPewZbpKR/WUmtOU1qT+lw=
+github.com/nisimpson/piper v0.2.0 h1:IEq4quLzTOyJgizzAbMGqJU6oqy+lcBmonW0lTmSsg8=
+github.com/nisimpson/piper v0.2.0/go.mod h1:kUUPyzzCjb7i9lA0dwu/htPewZbpKR/WUmtOU1qT+lw=
 golang.org/x/time v0.9.0 h1:EsRrnYcQiGH+5FfbgvV4AP7qEZstoyrHB0DzarOQ4ZY=
 golang.org/x/time v0.9.0/go.mod h1:3BpzKBy/shNhVucY/MWOyx10tF3SFh9QdLuxbVysPQM=
