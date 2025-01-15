@@ -35,7 +35,7 @@ func TestFlatten(t *testing.T) {
 	source := pipeline.FromSlice(
 		[]int{1, 2, 3},
 		[]int{4, 5, 6},
-	).Thru(pipeline.Flatten[int]())
+	).Thru(pipeline.Flatten[[]int]())
 
 	want := []int{1, 2, 3, 4, 5, 6}
 	got := Consume[int](source)

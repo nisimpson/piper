@@ -33,8 +33,9 @@ func FlatMap[In any, Out any](fn MapFunction[In, []Out]) piper.Pipe {
 //
 // For example, to handle an upstream csv in indexed row order, call:
 //
-//	Flatten[[]string]() // [][]string - Flatten -> []string
-func Flatten[Out any, In []Out]() piper.Pipe {
+//	// flatten a 2-D array of strings
+//	Flatten[[][]string]() // [][]string - Flatten -> []string
+func Flatten[In []Out, Out any]() piper.Pipe {
 	return FlatMap(func(in In) []Out { return in })
 }
 
