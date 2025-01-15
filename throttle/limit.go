@@ -1,6 +1,8 @@
 package throttle
 
 import (
+	"context"
+
 	"github.com/nisimpson/piper"
 	"golang.org/x/time/rate"
 )
@@ -19,19 +21,23 @@ type limiter struct {
 	// to be rate limited.
 	in chan any
 
-	// pipe is the next stage in the pipeline that will receive
-	// the rate-limited items. It represents the downstream
-	// processing stage.
-	pipe piper.Pipe
+	// out is the output channel that receives items from the previous
+	// pipeline stage. It's used to send outgoing data downstream.
+	out chan any
+
+	// ctx is the context that manages cancellation or deadline checks
+	// for the limiter.
+	ctx context.Context
 }
 
 // Limit creates a new [piper.Pipe] that rate limits the flow of items
 // using the provided [rate.Limiter].
-func Limit(limit *rate.Limiter, pipe piper.Pipe) piper.Pipe {
+func Limit(ctx context.Context, limit *rate.Limiter) piper.Pipe {
 	limiter := limiter{
 		limit: limit,
 		in:    make(chan any),
-		pipe:  pipe,
+		out:   make(chan any),
+		ctx:   ctx,
 	}
 
 	go limiter.start()
@@ -45,7 +51,7 @@ func (l limiter) In() chan<- any { return l.in }
 // Out returns the output channel from the next pipeline stage.
 // This channel provides access to the rate-limited items after they've
 // been processed by the downstream stage.
-func (l limiter) Out() <-chan any { return l.pipe.Out() }
+func (l limiter) Out() <-chan any { return l.out }
 
 // start begins the main processing loop for the rate limiter.
 // It continuously reads from the input channel, applies rate limiting,
@@ -58,16 +64,16 @@ func (l limiter) Out() <-chan any { return l.pipe.Out() }
 // The function ensures proper cleanup by closing the downstream pipe's
 // input channel when processing is complete.
 func (l limiter) start() {
-	defer close(l.pipe.In())
+	defer close(l.out)
 	for {
 		// Wait for rate limit allowance
-		if !l.limit.Allow() {
-			continue
+		if err := l.limit.Wait(l.ctx); err != nil {
+			return
 		}
 
 		// Process next item if available
 		if data, ok := <-l.in; ok {
-			l.pipe.In() <- data
+			l.out <- data
 		} else {
 			return
 		}

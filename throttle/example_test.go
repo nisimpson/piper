@@ -1,6 +1,7 @@
 package throttle_test
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -16,7 +17,7 @@ func ExampleLimit() {
 
 	// Create source pipeline and apply rate limiting
 	source := pipeline.FromSlice(1, 2, 3)
-	limited := source.Thru(throttle.Limit(limiter, pipeline.Passthrough()))
+	limited := source.Thru(throttle.Limit(context.Background(), limiter))
 
 	start := time.Now()
 	for val := range limited.Out() {
@@ -34,7 +35,7 @@ func ExampleLimit_burst() {
 	// Create a limiter that allows 2 items per second with burst of 2
 	limiter := rate.NewLimiter(rate.Every(500*time.Millisecond), 2)
 
-	pipe := throttle.Limit(limiter, pipeline.Passthrough())
+	pipe := throttle.Limit(context.Background(), limiter)
 
 	// Send input
 	go func() {
@@ -68,7 +69,7 @@ func ExampleLimit_composition() {
 		Thru(pipeline.Map(func(x any) any {
 			return x.(int) * 2
 		})).
-		Thru(throttle.Limit(limiter, pipeline.Passthrough()))
+		Thru(throttle.Limit(context.Background(), limiter))
 
 	start := time.Now()
 	for val := range result.Out() {
@@ -85,7 +86,7 @@ func ExampleLimit_composition() {
 func ExampleLimit_strings() {
 	// Create a limiter that allows 2 items per second
 	limiter := rate.NewLimiter(rate.Every(500*time.Millisecond), 1)
-	pipe := throttle.Limit(limiter, pipeline.Passthrough())
+	pipe := throttle.Limit(context.Background(), limiter)
 
 	// Send string input
 	go func() {
@@ -112,7 +113,7 @@ func ExampleLimit_strings() {
 func ExampleLimit_zeroRate() {
 	// Create a limiter with zero rate
 	limiter := rate.NewLimiter(0, 2)
-	pipe := throttle.Limit(limiter, pipeline.Passthrough())
+	pipe := throttle.Limit(context.Background(), limiter)
 
 	// Send input
 	go func() {

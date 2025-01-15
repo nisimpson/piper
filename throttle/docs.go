@@ -9,8 +9,9 @@ Usage:
 	limiter := rate.NewLimiter(rate.Every(100*time.Millisecond), 1)
 
 	// Apply rate limiting to a pipeline
-	pipeline := source.
-	    Thru(throttle.Limit(limiter)).
+	pipeline.
+		From(source).
+	    Thru(throttle.Limit(ctx, limiter).
 	    To(destination)
 */
 package throttle
