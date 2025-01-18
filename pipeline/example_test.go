@@ -1221,3 +1221,66 @@ func ExampleDropN_mixedTypes() {
 	// true
 	// five
 }
+
+// ExampleChunk demonstrates splitting a slice into smaller chunks
+func ExampleChunk() {
+	// Create a pipeline that chunks input into groups of 3
+	pipe := pipeline.Chunk[[]int](3)
+
+	// Send input
+	in := pipe.In()
+	go func() {
+		// Send a slice of numbers
+		numbers := []int{1, 2, 3, 4, 5, 6, 7, 8}
+		in <- numbers
+		close(in)
+	}()
+
+	// Receive and print the chunked output
+	for chunk := range pipe.Out() {
+		fmt.Printf("%v\n", chunk.([]int))
+	}
+	// Output:
+	// [1 2 3]
+	// [4 5 6]
+	// [7 8]
+}
+
+// ExampleChunk_empty demonstrates behavior with empty input
+func ExampleChunk_empty() {
+	pipe := pipeline.Chunk[[]int](2)
+
+	// Send empty slice
+	in := pipe.In()
+	go func() {
+		numbers := []int{}
+		in <- numbers
+		close(in)
+	}()
+
+	// Receive chunks
+	for chunk := range pipe.Out() {
+		fmt.Printf("%v\n", chunk.([]int))
+	}
+	// Output:
+}
+
+// ExampleChunk_strings demonstrates chunking with string slices
+func ExampleChunk_strings() {
+	pipe := pipeline.Chunk[[]string](2)
+
+	in := pipe.In()
+	go func() {
+		words := []string{"hello", "world", "how", "are", "you"}
+		in <- words
+		close(in)
+	}()
+
+	for chunk := range pipe.Out() {
+		fmt.Printf("%v\n", chunk.([]string))
+	}
+	// Output:
+	// [hello world]
+	// [how are]
+	// [you]
+}
