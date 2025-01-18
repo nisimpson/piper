@@ -19,7 +19,7 @@ import "github.com/nisimpson/piper"
 //	}()
 //
 //	for chunk := range pipe.Out() {
-//		// Results in: [[1, 2, 3], [4, 5, 6], [7]]
+//		// Results in: [[1, 2, 3], [4, 5, 6], [7, 8]]
 //	}
 func Chunk[In []T, T any](size int) piper.Pipe {
 	if size < 1 {
