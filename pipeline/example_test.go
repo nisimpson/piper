@@ -1284,3 +1284,121 @@ func ExampleChunk_strings() {
 	// [how are]
 	// [you]
 }
+
+// ExampleUnique demonstrates basic usage of the Unique pipe with integers
+func ExampleUnique_basic() {
+	// Create a source pipeline with duplicate numbers
+	source := pipeline.FromSlice(1, 2, 2, 3, 3, 3, 4)
+
+	// Create a unique pipe and connect it to the source
+	result := source.Thru(pipeline.Unique[int]())
+
+	// Collect and print unique values
+	for val := range result.Out() {
+		fmt.Println(val)
+	}
+
+	// Output:
+	// 1
+	// 2
+	// 3
+	// 4
+}
+
+// ExampleUnique_strings demonstrates using Unique with string values
+func ExampleUnique_strings() {
+	// Create a source with duplicate strings
+	source := pipeline.FromSlice("apple", "banana", "apple", "cherry", "banana")
+
+	// Create a unique pipe for strings
+	result := source.Thru(pipeline.Unique[string]())
+
+	// Collect and print unique values
+	for val := range result.Out() {
+		fmt.Println(val)
+	}
+
+	// Output:
+	// apple
+	// banana
+	// cherry
+}
+
+// ExampleUnique_customKey demonstrates using Unique with a custom key function
+func ExampleUnique_customKey() {
+	// Define a simple struct
+	type Person struct {
+		ID   int
+		Name string
+		Age  int
+	}
+
+	// Create sample data with duplicates (same ID)
+	people := []Person{
+		{ID: 1, Name: "Alice", Age: 25},
+		{ID: 2, Name: "Bob", Age: 30},
+		{ID: 1, Name: "Alice", Age: 26}, // Duplicate ID
+		{ID: 3, Name: "Charlie", Age: 35},
+	}
+
+	// Create a unique pipe with custom key function that uses ID as the unique key
+	uniqueByID := func(opts *pipeline.UniqueOptions[Person]) {
+		opts.KeyFunc = func(p Person) string {
+			return fmt.Sprintf("%d", p.ID)
+		}
+	}
+
+	// Create the pipeline
+	source := pipeline.FromSlice(people...)
+	result := source.Thru(pipeline.Unique[Person](uniqueByID))
+
+	// Collect and print unique people
+	for val := range result.Out() {
+		person := val.(Person)
+		fmt.Printf("ID: %d, Name: %s, Age: %d\n", person.ID, person.Name, person.Age)
+	}
+
+	// Output:
+	// ID: 1, Name: Alice, Age: 25
+	// ID: 2, Name: Bob, Age: 30
+	// ID: 3, Name: Charlie, Age: 35
+}
+
+// ExampleUnique_compositeKey demonstrates using multiple fields as a unique key
+func ExampleUnique_compositeKey() {
+	type Event struct {
+		Date     string
+		Category string
+		Value    int
+	}
+
+	events := []Event{
+		{"2024-01-01", "A", 1},
+		{"2024-01-01", "A", 2}, // Duplicate date+category
+		{"2024-01-01", "B", 3},
+		{"2024-01-02", "A", 4},
+	}
+
+	// Create unique pipe with composite key function using date and category
+	uniqueByDateCategory := func(opts *pipeline.UniqueOptions[Event]) {
+		opts.KeyFunc = func(e Event) string {
+			return fmt.Sprintf("%s-%s", e.Date, e.Category)
+		}
+	}
+
+	// Create the pipeline
+	source := pipeline.FromSlice(events...)
+	result := source.Thru(pipeline.Unique[Event](uniqueByDateCategory))
+
+	// Collect and print unique events
+	for val := range result.Out() {
+		event := val.(Event)
+		fmt.Printf("Date: %s, Category: %s, Value: %d\n",
+			event.Date, event.Category, event.Value)
+	}
+
+	// Output:
+	// Date: 2024-01-01, Category: A, Value: 1
+	// Date: 2024-01-01, Category: B, Value: 3
+	// Date: 2024-01-02, Category: A, Value: 4
+}
