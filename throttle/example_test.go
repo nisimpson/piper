@@ -121,6 +121,7 @@ func ExampleLimit_zeroRate() {
 		defer close(in)
 		in <- 1
 		in <- 2
+		in <- 3
 	}()
 
 	timeout := time.After(100 * time.Millisecond)
