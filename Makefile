@@ -1,6 +1,7 @@
 # Makefile for bee
 
 pkg?=piper
+throttle_tag?=v0.1.1
 
 .PHONY: test
 
@@ -52,6 +53,10 @@ no-dirty:
 # OPERATIONS
 # ==================================================================================== #
 
+.PHONE update
+update:
+	@go get -u ./...
+
 .PHONY: lint
 lint: tidy audit no-dirty
 
@@ -60,8 +65,10 @@ lint: tidy audit no-dirty
 push: lint
 	git push
 
+
+
 .PHONY: publish-throttle
 publish-throttle:
-	git tag -f throttle/v0.1.0
-	git push origin throttle/v0.1.0
-	@GOPROXY=proxy.golang.org go list -m github.com/nisimpson/piper/throttle@v0.1.0
+	git tag -f throttle/$(throttle_tag)
+	git push origin throttle/$(throttle_tag)
+	@GOPROXY=proxy.golang.org go list -m github.com/nisimpson/piper/throttle@$(throttle_tag)
